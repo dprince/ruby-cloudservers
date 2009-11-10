@@ -35,7 +35,7 @@ module CloudServers
     
     def reboot(type="SOFT")
       data = JSON.generate(:reboot => {:type => type})
-      response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{},data)
+      response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
       raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
       true
     end
