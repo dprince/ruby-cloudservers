@@ -68,7 +68,13 @@ module CloudServers
     def servers
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/servers",svrmgmtport,svrmgmtscheme)
       raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
-      JSON.parse(response.body)
+      JSON.parse(response.body)["servers"]
+    end
+    
+    def servers_detail
+      response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/servers/detail",svrmgmtport,svrmgmtscheme)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      JSON.parse(response.body)["servers"]
     end
     
     private
