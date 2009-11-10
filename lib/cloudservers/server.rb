@@ -17,6 +17,7 @@ module CloudServers
       @svrmgmtport = connection.svrmgmtport
       @svrmgmtscheme = connection.svrmgmtscheme
       populate
+      return self
     end
     
     def populate
@@ -30,6 +31,7 @@ module CloudServers
       @addresses = data["addresses"]
       @metadata  = data["metadata"]
       @hostId    = data["hostId"]
+      true
     end
     alias :refresh :populate
     
@@ -42,6 +44,23 @@ module CloudServers
     
     def reboot!
       self.reboot("HARD")
+    end
+    
+    # Options: {:name => "NewName", :adminPass => "MyNewPassword"}
+    # Changing the password will reboot the server
+    def update(options)
+      data = JSON.generate(:server => options)
+      response = @connection.csreq("PUT",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      # If we rename the instance, repopulate the object
+      self.populate if options[:name]
+      true
+    end
+    
+    def delete
+      response = @connection.csreq("DELETE",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}",@svrmgmtport,@svrmgmtscheme)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      true
     end
   end
 end
