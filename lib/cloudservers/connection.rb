@@ -51,6 +51,7 @@ module CloudServers
       request = Net::HTTP.const_get(method.to_s.capitalize).new(path,hdrhash)
       request.body = data
       response = @http[server].request(request)
+      print "DEBUG: csreq returned response code #{response.code}\n"
       raise ExpiredAuthTokenException if response.code == "401"
       response
     rescue Errno::EPIPE, Timeout::Error, Errno::EINVAL, EOFError
@@ -129,11 +130,9 @@ module CloudServers
     end
     alias :flavor :get_flavor
     
-    # The detail view isn't returning any data - odd.
     def list_shared_ip_groups
-      response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/shared_ip_groups",svrmgmtport,svrmgmtscheme)
+      response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/shared_ip_groups/detail",svrmgmtport,svrmgmtscheme)
       raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
-      print "DEBUG: Body is #{response.body}\n"
       return JSON.parse(response.body)['sharedIpGroups']
     end
     alias :shared_ip_groups :list_shared_ip_groups

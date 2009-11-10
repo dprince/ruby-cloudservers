@@ -1,0 +1,6 @@
+* Get backup scheduling working
+* Make use of the JSON error response bodies to provide more detail on exceptions.
+* Find out why server objects are being cached in the middle of a resize.
+* Find out why DELETE /shared_ip_groups/id is not deleting anything
+* Find out why shared IP groups are getting cached post-delete
+* Find out why attempting to delete a stock system image isn't returning an error code

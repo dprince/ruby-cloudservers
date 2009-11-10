@@ -93,7 +93,6 @@ module CloudServers
       CloudServers::Image.new(@connection,JSON.parse(response.body)['id'])
     end
     
-    # Bug on the server end?  It's still saying QUEUE_RESIZE even when the control panel (and SSH) say the resize is done and approved.
     def resize!(flavorId)
       data = JSON.generate(:resize => {:flavorId => flavorId})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
