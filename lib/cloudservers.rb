@@ -6,11 +6,11 @@ module CloudServers
   VERSION = '0.0.1'
   require 'net/http'
   require 'net/https'
-  require 'rexml/document'
   require 'uri'
   require 'digest/md5'
   require 'time'
   require 'rubygems'
+  require 'json'
 
   unless "".respond_to? :each_char
     require "jcode"
@@ -35,4 +35,6 @@ end
 class AuthenticationException     < StandardError # :nodoc:
 end
 class InvalidResponseException    < StandardError # :nodoc:
+end
+class ExpiredAuthTokenException   < StandardError # :nodoc:
 end

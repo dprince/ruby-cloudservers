@@ -14,6 +14,10 @@ module CloudServers
       response = server.get(path,hdrhash)
       if (response.code == "204")
         connection.authtoken = response["x-auth-token"]
+        connection.svrmgmthost = URI.parse(response["x-server-management-url"]).host
+        connection.svrmgmtpath = URI.parse(response["x-server-management-url"]).path
+        connection.svrmgmtport = URI.parse(response["x-server-management-url"]).port
+        connection.svrmgmtscheme = URI.parse(response["x-server-management-url"]).scheme
         connection.authok = true
       else
         connection.authtoken = false
