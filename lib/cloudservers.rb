@@ -23,6 +23,7 @@ module CloudServers
   require 'cloudservers/server'
   require 'cloudservers/image'
   require 'cloudservers/flavor'
+  require 'cloudservers/shared_ip_group'
   
   MAX_PERSONALITY_ITEMS = 5
   MAX_PERSONALITY_FILE_SIZE = 10240

@@ -129,6 +129,29 @@ module CloudServers
     end
     alias :flavor :get_flavor
     
+    # The detail view isn't returning any data - odd.
+    def list_shared_ip_groups
+      response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/shared_ip_groups",svrmgmtport,svrmgmtscheme)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      print "DEBUG: Body is #{response.body}\n"
+      return JSON.parse(response.body)['sharedIpGroups']
+    end
+    alias :shared_ip_groups :list_shared_ip_groups
+      
+    def get_shared_ip_group(id)
+      CloudServers::SharedIPGroup.new(self,id)
+    end
+    alias :shared_ip_group :get_shared_ip_group
+    
+    # Options: {:name => 'Group Name', :server => serverId}
+    def create_shared_ip_group(options)
+      data = JSON.generate(:sharedIpGroup => options)
+      response = csreq("POST",svrmgmthost,"#{svrmgmtpath}/shared_ip_groups",svrmgmtport,svrmgmtscheme,{'content-type' => 'application/json'},data)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      ip_group = JSON.parse(response.body)['sharedIpGroup']
+      CloudServers::SharedIPGroup.new(self,ip_group['id'])
+    end
+    
     private
     
     # Sets up standard HTTP headers
