@@ -21,6 +21,11 @@ module CloudServers
   require 'cloudservers/authentication'
   require 'cloudservers/connection'
   require 'cloudservers/server'
+  
+  MAX_PERSONALITY_ITEMS = 5
+  MAX_PERSONALITY_FILE_SIZE = 10240
+  MAX_SERVER_PATH_LENGTH = 255
+  MAX_PERSONALITY_METADATA_ITEMS = 5
 
 end
 
@@ -35,4 +40,12 @@ end
 class InvalidResponseException    < StandardError # :nodoc:
 end
 class ExpiredAuthTokenException   < StandardError # :nodoc:
+end
+class MissingArgumentException    < StandardError # :nodoc:
+end
+class TooManyPersonalityItems     < StandardError # :nodoc:
+end
+class PersonalityFilePathTooLong  < StandardError # :nodoc:
+end
+class PersonalityFileTooLarge     < StandardError # :nodoc:
 end

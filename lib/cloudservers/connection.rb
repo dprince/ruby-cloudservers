@@ -83,6 +83,23 @@ module CloudServers
       JSON.parse(response.body)["servers"]
     end
     
+    # name, flavorId, and imageId are required.
+    # For :personality, pass a hash of the form {'local_path' => 'server_path'}.  The file located at local_path will be base64-encoded
+    # and placed at the location identified by server_path on the new server.
+    # Returns a CloudServers::Server object.  The root password is available in the adminPass instance method.
+    def create_server(options)
+      raise MissingArgumentException, "Server name, flavor ID, and image ID must be supplied" unless (options[:name] && options[:flavorId] && options[:imageId])
+      options[:personality] = get_personality(options[:personality])
+      raise TooManyMetadataItems, "Metadata is limited to a total of #{MAX_PERSONALITY_METADATA_ITEMS} key/value pairs" if options[:metadata].is_a?(Hash) && options[:metadata].keys.size > MAX_PERSONALITY_METADATA_ITEMS
+      data = JSON.generate(:server => options)
+      response = csreq("POST",svrmgmthost,"#{svrmgmtpath}/servers",svrmgmtport,svrmgmtscheme,{'content-type' => 'application/json'},data)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      server_info = JSON.parse(response.body)['server']
+      server = CloudServers::Server.new(self,server_info['id'])
+      server.adminPass = server_info['adminPass']
+      return server
+    end
+    
     private
     
     # Sets up standard HTTP headers
@@ -109,6 +126,22 @@ module CloudServers
           raise ConnectionException, "Unable to connect to #{server}"
         end
       end
+    end
+    
+    def get_personality(options)
+      return if options.nil?
+      require 'base64'
+      data = []
+      itemcount = 0
+      options.each do |localpath,srvpath|
+        raise TooManyPersonalityItems, "Personality files are limited to a total of #{MAX_PERSONALITY_ITEMS} items" if itemcount >= MAX_PERSONALITY_ITEMS
+        raise PersonalityFilePathTooLong, "Server-side path of #{srvpath} exceeds the maximum length of #{MAX_SERVER_PATH_LENGTH} characters" if srvpath.size > MAX_SERVER_PATH_LENGTH
+        raise PersonalityFileTooLarge, "Local file #{localpath} exceeds the maximum size of #{MAX_PERSONALITY_FILE_SIZE} bytes" if File.size(localpath) > MAX_PERSONALITY_FILE_SIZE
+        b64 = Base64.encode64(IO.read(localpath))
+        data.push({:path => srvpath, :contents => b64})
+        itemcount += 1
+      end
+      return data
     end
     
     

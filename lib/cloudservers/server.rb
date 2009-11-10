@@ -1,20 +1,24 @@
 module CloudServers
   class Server
     
-    attr_reader :id
-    attr_reader :name
-    attr_reader :status
-    attr_reader :progress
-    attr_reader :addresses
-    attr_reader :metadata
-    attr_reader :hostId
+    attr_reader   :id
+    attr_reader   :name
+    attr_reader   :status
+    attr_reader   :progress
+    attr_reader   :addresses
+    attr_reader   :metadata
+    attr_reader   :hostId
+    attr_reader   :imageId
+    attr_reader   :flavorId
+    attr_reader   :metadata
+    attr_accessor :adminPass
     
     def initialize(connection,id)
-      @connection = connection
-      @id = id
-      @svrmgmthost = connection.svrmgmthost
-      @svrmgmtpath = connection.svrmgmtpath
-      @svrmgmtport = connection.svrmgmtport
+      @connection    = connection
+      @id            = id
+      @svrmgmthost   = connection.svrmgmthost
+      @svrmgmtpath   = connection.svrmgmtpath
+      @svrmgmtport   = connection.svrmgmtport
       @svrmgmtscheme = connection.svrmgmtscheme
       populate
       return self
@@ -31,6 +35,9 @@ module CloudServers
       @addresses = data["addresses"]
       @metadata  = data["metadata"]
       @hostId    = data["hostId"]
+      @imageId   = data["imageId"]
+      @flavorId  = data["flavorId"]
+      @metadata  = data["metadata"]
       true
     end
     alias :refresh :populate
@@ -57,7 +64,7 @@ module CloudServers
       true
     end
     
-    def delete
+    def delete!
       response = @connection.csreq("DELETE",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}",@svrmgmtport,@svrmgmtscheme)
       raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
       true
