@@ -42,6 +42,14 @@ module CloudServers
     end
     alias :refresh :populate
     
+    def flavor
+      CloudServers::Flavor.new(@connection,self.flavorId)
+    end
+    
+    def image
+      CloudServers::Image.new(@connection,self.imageId)
+    end
+    
     def reboot(type="SOFT")
       data = JSON.generate(:reboot => {:type => type})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
@@ -77,5 +85,13 @@ module CloudServers
       self.populate
       true
     end
+    
+    def create_image(name)
+      data = JSON.generate(:image => {:serverId => self.id, :name => name})
+      response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/images",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Image.new(@connection,JSON.parse(response.body)['id'])
+    end
+    
   end
 end

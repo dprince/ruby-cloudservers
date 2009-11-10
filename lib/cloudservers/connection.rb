@@ -67,21 +67,24 @@ module CloudServers
     end
     
     # Returns the CloudServers::Server object identified by the given id.
-    def server(id)
+    def get_server(id)
       CloudServers::Server.new(self,id)
     end
+    alias :server :get_server
     
-    def servers
+    def list_servers
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/servers",svrmgmtport,svrmgmtscheme)
       raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
       JSON.parse(response.body)["servers"]
     end
+    alias :servers :list_servers
     
-    def servers_detail
+    def list_servers_detail
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/servers/detail",svrmgmtport,svrmgmtscheme)
       raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
       JSON.parse(response.body)["servers"]
     end
+    alias :servers_detail :list_servers_detail
     
     # name, flavorId, and imageId are required.
     # For :personality, pass a hash of the form {'local_path' => 'server_path'}.  The file located at local_path will be base64-encoded
@@ -106,6 +109,12 @@ module CloudServers
       raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
       return JSON.parse(response.body)['images']
     end
+    alias :images :list_images
+    
+    def get_image(id)
+      CloudServers::Image.new(self,id)
+    end
+    alias :image :get_image
     
     # Gives a list of available server flavors
     def list_flavors
@@ -113,6 +122,12 @@ module CloudServers
       raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
       return JSON.parse(response.body)['flavors']
     end
+    alias :flavors :list_flavors
+    
+    def get_flavor(id)
+      CloudServers::Flavor.new(self,id)
+    end
+    alias :flavor :get_flavor
     
     private
     
@@ -148,9 +163,9 @@ module CloudServers
       data = []
       itemcount = 0
       options.each do |localpath,srvpath|
-        raise TooManyPersonalityItems, "Personality files are limited to a total of #{MAX_PERSONALITY_ITEMS} items" if itemcount >= MAX_PERSONALITY_ITEMS
-        raise PersonalityFilePathTooLong, "Server-side path of #{srvpath} exceeds the maximum length of #{MAX_SERVER_PATH_LENGTH} characters" if srvpath.size > MAX_SERVER_PATH_LENGTH
-        raise PersonalityFileTooLarge, "Local file #{localpath} exceeds the maximum size of #{MAX_PERSONALITY_FILE_SIZE} bytes" if File.size(localpath) > MAX_PERSONALITY_FILE_SIZE
+        raise TooManyPersonalityItemsException, "Personality files are limited to a total of #{MAX_PERSONALITY_ITEMS} items" if itemcount >= MAX_PERSONALITY_ITEMS
+        raise PersonalityFilePathTooLongException, "Server-side path of #{srvpath} exceeds the maximum length of #{MAX_SERVER_PATH_LENGTH} characters" if srvpath.size > MAX_SERVER_PATH_LENGTH
+        raise PersonalityFileTooLargeException, "Local file #{localpath} exceeds the maximum size of #{MAX_PERSONALITY_FILE_SIZE} bytes" if File.size(localpath) > MAX_PERSONALITY_FILE_SIZE
         b64 = Base64.encode64(IO.read(localpath))
         data.push({:path => srvpath, :contents => b64})
         itemcount += 1
