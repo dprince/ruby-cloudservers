@@ -1,10 +1,10 @@
 module CloudServers
   class Authentication
     def initialize(connection)
-      path = '/auth'
+      path = '/v1.0'
       hdrhash = { "X-Auth-User" => connection.authuser, "X-Auth-Key" => connection.authkey }
       begin
-        server = Net::HTTP.new('api.mosso.com',443)
+        server = Net::HTTP.new('auth.api.rackspacecloud.com',443)
         server.use_ssl = true
         server.verify_mode = OpenSSL::SSL::VERIFY_NONE
         server.start
