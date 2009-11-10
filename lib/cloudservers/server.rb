@@ -93,5 +93,32 @@ module CloudServers
       CloudServers::Image.new(@connection,JSON.parse(response.body)['id'])
     end
     
+    # Bug on the server end?  It's still saying QUEUE_RESIZE even when the control panel (and SSH) say the resize is done and approved.
+    def resize!(flavorId)
+      data = JSON.generate(:resize => {:flavorId => flavorId})
+      response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      self.populate
+      true
+    end
+    
+    def confirm_resize!
+      # If the resize bug gets figured out, should put a check here to make sure that it's in the proper state for this.
+      data = JSON.generate(:confirmResize => nil)
+      response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      self.populate
+      true
+    end
+    
+    def revert_resize!
+      # If the resize bug gets figured out, should put a check here to make sure that it's in the proper state for this.
+      data = JSON.generate(:revertResize => nil)
+      response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      self.populate
+      true
+    end
+    
   end
 end

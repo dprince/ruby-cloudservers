@@ -2,8 +2,8 @@ module CloudServers
   class Connection
     
     attr_reader   :authuser
-    attr_accessor :authtoken
     attr_reader   :authkey
+    attr_accessor :authtoken
     attr_accessor :authok
     attr_accessor :svrmgmthost
     attr_accessor :svrmgmtpath
@@ -138,6 +138,7 @@ module CloudServers
       default_headers["X-Storage-Token"] = @authtoken if (authok? && !@account.nil?)
       default_headers["Connection"] = "Keep-Alive"
       default_headers["User-Agent"] = "CloudServers Ruby API #{VERSION}"
+      default_headers["Accept"] = "application/json"
       default_headers.merge(headers)
     end
     
