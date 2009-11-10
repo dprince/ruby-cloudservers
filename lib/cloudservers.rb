@@ -20,10 +20,8 @@ module CloudServers
   $:.unshift(File.dirname(__FILE__))
   require 'cloudservers/authentication'
   require 'cloudservers/connection'
+  require 'cloudservers/server'
 
-  def self.lines(str)
-    (str.respond_to?(:lines) ? str.lines : str).to_a.map { |x| x.chomp }
-  end
 end
 
 

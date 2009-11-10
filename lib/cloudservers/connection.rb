@@ -44,7 +44,7 @@ module CloudServers
     end
     
     # This method actually makes the HTTP calls out to the server
-    def csreq(method,server,path,port,scheme,headers = {},attempts = 0) # :nodoc:
+    def csreq(method,server,path,port,scheme,headers = {},data = nil,attempts = 0) # :nodoc:
       start = Time.now
       hdrhash = headerprep(headers)
       start_http(server,path,port,scheme,hdrhash)
@@ -63,6 +63,11 @@ module CloudServers
       raise ConnectionException, "Authentication token expired and you have requested not to retry" if @retry_auth == false
       CloudFiles::Authentication.new(self)
       retry
+    end
+    
+    # Returns the CloudServers::Server object identified by the given id.
+    def server(id)
+      CloudServers::Server.new(self,id)
     end
     
     def servers
