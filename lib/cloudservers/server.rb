@@ -33,5 +33,15 @@ module CloudServers
     end
     alias :refresh :populate
     
+    def reboot(type="SOFT")
+      data = JSON.generate(:reboot => {:type => type})
+      response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{},data)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      true
+    end
+    
+    def reboot!
+      self.reboot("HARD")
+    end
   end
 end

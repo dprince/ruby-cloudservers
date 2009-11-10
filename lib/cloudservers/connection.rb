@@ -49,6 +49,7 @@ module CloudServers
       hdrhash = headerprep(headers)
       start_http(server,path,port,scheme,hdrhash)
       request = Net::HTTP.const_get(method.to_s.capitalize).new(path,hdrhash)
+      request.body = data
       response = @http[server].request(request)
       raise ExpiredAuthTokenException if response.code == "401"
       response
