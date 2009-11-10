@@ -100,6 +100,20 @@ module CloudServers
       return server
     end
     
+    # Gives a list of available server images
+    def list_images
+      response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/images/detail",svrmgmtport,svrmgmtscheme)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      return JSON.parse(response.body)['images']
+    end
+    
+    # Gives a list of available server flavors
+    def list_flavors
+      response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/flavors/detail",svrmgmtport,svrmgmtscheme)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      return JSON.parse(response.body)['flavors']
+    end
+    
     private
     
     # Sets up standard HTTP headers
