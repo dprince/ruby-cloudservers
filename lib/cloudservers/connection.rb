@@ -51,7 +51,6 @@ module CloudServers
       request = Net::HTTP.const_get(method.to_s.capitalize).new(path,hdrhash)
       request.body = data
       response = @http[server].request(request)
-      print "DEBUG: csreq returned response code #{response.code}\n"
       raise ExpiredAuthTokenException if response.code == "401"
       response
     rescue Errno::EPIPE, Timeout::Error, Errno::EINVAL, EOFError

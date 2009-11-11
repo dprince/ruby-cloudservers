@@ -119,5 +119,26 @@ module CloudServers
       true
     end
     
+    # Returns a hash of the form {"weekly" => state, "daily" => state, "enabled" => boolean}
+    def backup_schedule
+      response = @connection.csreq("GET",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(@id.to_s)}/backup_schedule",@svrmgmtport,@svrmgmtscheme)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      JSON.parse(response.body)['backupSchedule']
+    end
+    
+    # Takes a hash of the form: {"weekly" => state, "daily" => state, "enabled" => boolean}
+    def backup_schedule=(options)
+      data = JSON.generate('backupSchedule' => options)
+      response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/backup_schedule",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      true
+    end
+    
+    def disable_backup_schedule!
+      response = @connection.csreq("DELETE",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/backup_schedule",@svrmgmtport,@svrmgmtscheme)
+      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      true
+    end
+    
   end
 end
