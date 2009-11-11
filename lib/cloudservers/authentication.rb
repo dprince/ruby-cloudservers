@@ -19,10 +19,13 @@ module CloudServers
         raise CloudServers::Exception::Connection, "Unable to connect to #{server}"
       end
       response = server.get(path,hdrhash)
+      print "DEBUG: Response is #{response.to_hash.inspect}\n"
       if (response.code == "204")
         connection.authtoken = response["x-auth-token"]
         connection.svrmgmthost = URI.parse(response["x-server-management-url"]).host
         connection.svrmgmtpath = URI.parse(response["x-server-management-url"]).path
+        # Force the path into the v1.0 URL space
+        connection.svrmgmtpath.sub!(/\/.*?\//, '/v1.0/')
         connection.svrmgmtport = URI.parse(response["x-server-management-url"]).port
         connection.svrmgmtscheme = URI.parse(response["x-server-management-url"]).scheme
         connection.authok = true
