@@ -3,5 +3,4 @@
 * Handle managing account limits
 * Allow some sort of flag to get the stack trace when an exception is thrown.
 * Shared IP group modification code.
-* Documentation.
 * Tests.  :-)
