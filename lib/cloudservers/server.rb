@@ -26,7 +26,7 @@ module CloudServers
     
     def populate
       response = @connection.csreq("GET",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(@id.to_s)}",@svrmgmtport,@svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       data = JSON.parse(response.body)["server"]
       @id        = data["id"]
       @name      = data["name"]
@@ -53,7 +53,7 @@ module CloudServers
     def reboot(type="SOFT")
       data = JSON.generate(:reboot => {:type => type})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
     
@@ -66,7 +66,7 @@ module CloudServers
     def update(options)
       data = JSON.generate(:server => options)
       response = @connection.csreq("PUT",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       # If we rename the instance, repopulate the object
       self.populate if options[:name]
       true
@@ -74,14 +74,14 @@ module CloudServers
     
     def delete!
       response = @connection.csreq("DELETE",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}",@svrmgmtport,@svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
     
     def rebuild!(imageId)
       data = JSON.generate(:rebuild => {:imageId => imageId})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       self.populate
       true
     end
@@ -89,14 +89,14 @@ module CloudServers
     def create_image(name)
       data = JSON.generate(:image => {:serverId => self.id, :name => name})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/images",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       CloudServers::Image.new(@connection,JSON.parse(response.body)['id'])
     end
     
     def resize!(flavorId)
       data = JSON.generate(:resize => {:flavorId => flavorId})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       self.populate
       true
     end
@@ -105,7 +105,7 @@ module CloudServers
       # If the resize bug gets figured out, should put a check here to make sure that it's in the proper state for this.
       data = JSON.generate(:confirmResize => nil)
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       self.populate
       true
     end
@@ -114,7 +114,7 @@ module CloudServers
       # If the resize bug gets figured out, should put a check here to make sure that it's in the proper state for this.
       data = JSON.generate(:revertResize => nil)
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       self.populate
       true
     end
@@ -122,7 +122,7 @@ module CloudServers
     # Returns a hash of the form {"weekly" => state, "daily" => state, "enabled" => boolean}
     def backup_schedule
       response = @connection.csreq("GET",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(@id.to_s)}/backup_schedule",@svrmgmtport,@svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       JSON.parse(response.body)['backupSchedule']
     end
     
@@ -130,13 +130,13 @@ module CloudServers
     def backup_schedule=(options)
       data = JSON.generate('backupSchedule' => options)
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/backup_schedule",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
     
     def disable_backup_schedule!
       response = @connection.csreq("DELETE",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/backup_schedule",@svrmgmtport,@svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
     

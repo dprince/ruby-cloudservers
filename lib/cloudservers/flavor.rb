@@ -8,7 +8,7 @@ module CloudServers
     
     def initialize(connection,id)
       response = connection.csreq("GET",connection.svrmgmthost,"#{connection.svrmgmtpath}/flavors/#{URI.escape(id.to_s)}",connection.svrmgmtport,connection.svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       data = JSON.parse(response.body)['flavor']
       @id   = data['id']
       @name = data['name']

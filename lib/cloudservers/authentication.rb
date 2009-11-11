@@ -21,7 +21,7 @@ module CloudServers
         connection.authok = true
       else
         connection.authtoken = false
-        raise AuthenticationException, "Authentication failed"
+        raise AuthenticationException, "Authentication failed with response code #{response.code}"
       end
       server.finish
     end

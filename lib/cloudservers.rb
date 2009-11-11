@@ -24,6 +24,7 @@ module CloudServers
   require 'cloudservers/image'
   require 'cloudservers/flavor'
   require 'cloudservers/shared_ip_group'
+  require 'cloudservers/exception'
   
   MAX_PERSONALITY_ITEMS = 5
   MAX_PERSONALITY_FILE_SIZE = 10240
@@ -53,4 +54,10 @@ end
 class PersonalityFileTooLargeException     < StandardError # :nodoc:
 end
 class UnauthorizedException < StandardError # :nodoc:
+end
+
+class String
+  def upcase_first
+    self[0].chr.capitalize + self[1, size]
+  end
 end

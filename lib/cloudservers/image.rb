@@ -17,7 +17,7 @@ module CloudServers
     
     def populate
       response = @connection.csreq("GET",@connection.svrmgmthost,"#{@connection.svrmgmtpath}/images/#{URI.escape(self.id.to_s)}",@connection.svrmgmtport,@connection.svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       data = JSON.parse(response.body)['image']
       @id = data['id']
       @name = data['name']
@@ -33,8 +33,7 @@ module CloudServers
     # Delete an image.  This should be returning invalid permissions when attempting to delete system images, but it's not.
     def delete!
       response = @connection.csreq("DELETE",@connection.svrmgmthost,"#{@connection.svrmgmtpath}/images/#{URI.escape(self.id.to_s)}",@connection.svrmgmtport,@connection.svrmgmtscheme)
-      raise UnauthorizedException, "You are not authorized to delete image #{self.id} (#{self.name})" if (response.code.match(/^401$/))
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^204$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
     

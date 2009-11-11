@@ -74,14 +74,14 @@ module CloudServers
     
     def list_servers
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/servers",svrmgmtport,svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       JSON.parse(response.body)["servers"]
     end
     alias :servers :list_servers
     
     def list_servers_detail
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/servers/detail",svrmgmtport,svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       JSON.parse(response.body)["servers"]
     end
     alias :servers_detail :list_servers_detail
@@ -96,7 +96,7 @@ module CloudServers
       raise TooManyMetadataItems, "Metadata is limited to a total of #{MAX_PERSONALITY_METADATA_ITEMS} key/value pairs" if options[:metadata].is_a?(Hash) && options[:metadata].keys.size > MAX_PERSONALITY_METADATA_ITEMS
       data = JSON.generate(:server => options)
       response = csreq("POST",svrmgmthost,"#{svrmgmtpath}/servers",svrmgmtport,svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       server_info = JSON.parse(response.body)['server']
       server = CloudServers::Server.new(self,server_info['id'])
       server.adminPass = server_info['adminPass']
@@ -106,7 +106,7 @@ module CloudServers
     # Gives a list of available server images
     def list_images
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/images/detail",svrmgmtport,svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       return JSON.parse(response.body)['images']
     end
     alias :images :list_images
@@ -119,7 +119,7 @@ module CloudServers
     # Gives a list of available server flavors
     def list_flavors
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/flavors/detail",svrmgmtport,svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       return JSON.parse(response.body)['flavors']
     end
     alias :flavors :list_flavors
@@ -131,7 +131,7 @@ module CloudServers
     
     def list_shared_ip_groups
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/shared_ip_groups/detail",svrmgmtport,svrmgmtscheme)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       return JSON.parse(response.body)['sharedIpGroups']
     end
     alias :shared_ip_groups :list_shared_ip_groups
@@ -145,7 +145,7 @@ module CloudServers
     def create_shared_ip_group(options)
       data = JSON.generate(:sharedIpGroup => options)
       response = csreq("POST",svrmgmthost,"#{svrmgmtpath}/shared_ip_groups",svrmgmtport,svrmgmtscheme,{'content-type' => 'application/json'},data)
-      raise InvalidResponseException, "Invalid response code #{response.code}" unless (response.code.match(/^20.$/))
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       ip_group = JSON.parse(response.body)['sharedIpGroup']
       CloudServers::SharedIPGroup.new(self,ip_group['id'])
     end
