@@ -1,0 +1,82 @@
+= Rackspace Cloud Servers
+
+== Description
+
+This is a Ruby interface into the Rackspace[http://rackspacecloud.com/] {Cloud Servers}[http://www.rackspacecloud.com/cloud_hosting_products/servers] service. Cloud Servers from The Rackspace Cloud put you in complete control of your hosting infrastructure. Each Cloud Server is a fully-customizable, pay by the hour, virtualized server instance that you launch, maintain, and control with full root access.
+
+== Installation
+
+This source is available on Github[http://github.com/rackspace/ruby-cloudservers/] and the gem is available on Gemcutter[http://gemcutter.org/].  To install it, do
+
+  gem sources -a http://gemcutter.org/
+  
+  sudo gem install cloudservers
+  
+To use it in a Rails application, add the following information to your config/environment.rb
+
+  config.gem "cloudfiles", :source => 'http://gemcutter.org/
+  
+
+== Examples
+
+See the class definitions for documentation on specific methods and operations.
+
+  require 'rubygems'
+  require 'cloudservers'
+
+  # Log into the Cloud Servers system
+  cs = CloudFiles::Connection.new(USERNAME, API_KEY)
+
+  # Get a listing of all current servers
+  >> cs.servers
+  => [{"name"=>"RenamedRubyTest", "id"=>110917}]
+
+  # Access a specific server
+  >> server = cs.server(110917)
+  >> server.name
+  => "RenamedRubyTest"
+
+  # See what type of server this is
+  >> server.flavor.name
+  => "256 server"
+  >> server.image.name
+  => "Ubuntu 8.04.2 LTS (hardy)"
+
+  # Soft-reboot the server
+  >> server.reboot
+  => true
+
+  # Create a new 512MB CentOS 5.2 server.  The root password is returned in the adminPass method.
+  >> image = cs.get_image(2)
+  => #<CloudServers::Image:0x1014a8060 ...>, status"ACTIVE", serverIdnil
+  >> image.name
+  => "CentOS 5.2"
+  >> flavor = cs.get_flavor(2)
+  => #<CloudServers::Flavor:0x101469130 @disk=20, @name="512 server", @id=2, @ram=512>
+  >> flavor.name
+  => "512 server"
+  >> newserver = cs.create_server(:name => "New Server", :imageId => image.id, :flavorId => 2)
+  => #<CloudServers::Server:0x101433f08 ....
+  >> newserver.status
+  => "BUILD"
+  >> newserver.progress
+  => 0
+  >> newserver.adminPass
+  => "NewServerMbhzUnO"
+  >> newserver.refresh
+  => true
+  >> newserver.progress
+  => 12
+  
+  # Delete the new server
+  >> newserver.delete!
+  => true  
+
+== Authors
+
+By H. Wade Minter <wade.minter@rackspace.com> and Mike Mayo <mike.mayo@rackspace.com>
+
+== License
+
+See COPYING for license information.
+Copyright (c) 2009, Rackspace US, Inc.

@@ -1,14 +1,26 @@
 #!/usr/bin/env ruby
 # 
 # == Cloud Servers API
+# ==== Connects Ruby Applications to Rackspace's {Cloud Servers service}[http://www.rackspacecloud.com/cloud_hosting_products/servers]
+# By H. Wade Minter <wade.minter@rackspace.com> and Mike Mayo <mike.mayo@rackspace.com>
+#
+# See COPYING for license information.
+# Copyright (c) 2009, Rackspace US, Inc.
+# ----
+# 
+# === Documentation & Examples
+# To begin reviewing the available methods and examples, peruse the README.rodc file, or begin by looking at documentation for the 
+# CloudServers::Connection class.
+#
+# The CloudServers class is the base class.  Not much of note aside from housekeeping happens here.
+# To create a new CloudServers connection, use the CloudServers::Connection.new('user_name', 'api_key') method.
+
 module CloudServers
 
-  VERSION = '0.0.1'
+  VERSION = IO.read(File.dirname(__FILE__) + '/../VERSION')
   require 'net/http'
   require 'net/https'
   require 'uri'
-  require 'digest/md5'
-  require 'time'
   require 'rubygems'
   require 'json'
 
@@ -34,8 +46,8 @@ module CloudServers
 
 end
 
-# Monkey-patch the String class to get a method that will capitalize the first letter
 class String
+  # Monkey-patch the String class to get a method that will capitalize the first letter
   def upcase_first
     self[0].chr.capitalize + self[1, size]
   end

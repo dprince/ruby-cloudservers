@@ -1,31 +1,55 @@
 module CloudServers
   class Exception
     
-    # The list of exceptions as provided in the API Document
-    class CloudServersFault           < StandardError; end
-    class ServiceUnavailable          < StandardError; end
-    class Unauthorized                < StandardError; end
-    class BadRequest                  < StandardError; end
-    class OverLimit                   < StandardError; end
-    class BadMediaType                < StandardError; end
-    class BadMethod                   < StandardError; end
-    class ItemNotFound                < StandardError; end
-    class BuildInProgress             < StandardError; end
-    class ServerCapacityUnavailable   < StandardError; end
-    class BackupOrResizeInProgress    < StandardError; end
-    class ResizeNotAllowed            < StandardError; end
-    class NotImplemented              < StandardError; end
+    class CloudServersFault           < StandardError # :nodoc:
+    end
+    class ServiceUnavailable          < StandardError # :nodoc:
+    end
+    class Unauthorized                < StandardError # :nodoc:
+    end
+    class BadRequest                  < StandardError # :nodoc:
+    end
+    class OverLimit                   < StandardError # :nodoc:
+    end
+    class BadMediaType                < StandardError # :nodoc:
+    end
+    class BadMethod                   < StandardError # :nodoc:
+    end
+    class ItemNotFound                < StandardError # :nodoc:
+    end
+    class BuildInProgress             < StandardError # :nodoc:
+    end
+    class ServerCapacityUnavailable   < StandardError # :nodoc:
+    end
+    class BackupOrResizeInProgress    < StandardError # :nodoc:
+    end
+    class ResizeNotAllowed            < StandardError # :nodoc:
+    end
+    class NotImplemented              < StandardError # :nodoc:
+    end
     
     # Plus some others that we define here
-    class Other                       < StandardError; end
-    class ExpiredAuthToken            < StandardError; end
-    class MissingArgument             < StandardError; end
-    class TooManyPersonalityItems     < StandardError; end
-    class PersonalityFilePathTooLong  < StandardError; end
-    class PersonalityFileTooLarge     < StandardError; end
-    class Authentication              < StandardError; end
-    class Connection                  < StandardError; end
+    
+    class Other                       < StandardError # :nodoc:
+    end
+    class ExpiredAuthToken            < StandardError # :nodoc:
+    end
+    class MissingArgument             < StandardError # :nodoc:
+    end
+    class TooManyPersonalityItems     < StandardError # :nodoc:
+    end
+    class PersonalityFilePathTooLong  < StandardError # :nodoc:
+    end
+    class PersonalityFileTooLarge     < StandardError # :nodoc:
+    end
+    class Authentication              < StandardError # :nodoc:
+    end
+    class Connection                  < StandardError # :nodoc:
+    end
         
+    # In the event of a non-200 HTTP status code, this method takes the HTTP response, parses
+    # the JSON from the body to get more information about the exception, then raises the
+    # proper error.  Note that all exceptions are scoped in the CloudServers::Exception namespace.
     def self.raise_exception(response)
       return if response.code =~ /^20.$/
       fault,info = JSON.parse(response.body).first
