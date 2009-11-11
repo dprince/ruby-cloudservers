@@ -26,6 +26,7 @@ module CloudServers
   require 'cloudservers/shared_ip_group'
   require 'cloudservers/exception'
   
+  # Constants that set limits on server creation
   MAX_PERSONALITY_ITEMS = 5
   MAX_PERSONALITY_FILE_SIZE = 10240
   MAX_SERVER_PATH_LENGTH = 255
@@ -33,29 +34,7 @@ module CloudServers
 
 end
 
-
-
-class SyntaxException             < StandardError # :nodoc:
-end
-class ConnectionException         < StandardError # :nodoc:
-end
-class AuthenticationException     < StandardError # :nodoc:
-end
-class InvalidResponseException    < StandardError # :nodoc:
-end
-class ExpiredAuthTokenException   < StandardError # :nodoc:
-end
-class MissingArgumentException    < StandardError # :nodoc:
-end
-class TooManyPersonalityItemsException     < StandardError # :nodoc:
-end
-class PersonalityFilePathTooLongException  < StandardError # :nodoc:
-end
-class PersonalityFileTooLargeException     < StandardError # :nodoc:
-end
-class UnauthorizedException < StandardError # :nodoc:
-end
-
+# Monkey-patch the String class to get a method that will capitalize the first letter
 class String
   def upcase_first
     self[0].chr.capitalize + self[1, size]

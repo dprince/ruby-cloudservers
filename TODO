@@ -1,3 +1,5 @@
 * Work with Jorge to find out why things are getting cached when they apparently shouldn't be.
 * Find out why attempting to delete a stock system image isn't returning an error code
+* Handle managing account limits
+* Documentation.
 * Tests.  :-)

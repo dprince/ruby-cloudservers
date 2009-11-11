@@ -9,7 +9,7 @@ module CloudServers
         server.verify_mode = OpenSSL::SSL::VERIFY_NONE
         server.start
       rescue
-        raise ConnectionException, "Unable to connect to #{server}"
+        raise CloudServers::Exception::Connection, "Unable to connect to #{server}"
       end
       response = server.get(path,hdrhash)
       if (response.code == "204")
@@ -21,7 +21,7 @@ module CloudServers
         connection.authok = true
       else
         connection.authtoken = false
-        raise AuthenticationException, "Authentication failed with response code #{response.code}"
+        raise CloudServers::Exception::Authentication, "Authentication failed with response code #{response.code}"
       end
       server.finish
     end

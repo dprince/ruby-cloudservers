@@ -51,17 +51,17 @@ module CloudServers
       request = Net::HTTP.const_get(method.to_s.capitalize).new(path,hdrhash)
       request.body = data
       response = @http[server].request(request)
-      raise ExpiredAuthTokenException if response.code == "401"
+      raise CloudServers::Exception::ExpiredAuthToken if response.code == "401"
       response
     rescue Errno::EPIPE, Timeout::Error, Errno::EINVAL, EOFError
       # Server closed the connection, retry
-      raise ConnectionException, "Unable to reconnect to #{server} after #{count} attempts" if attempts >= 5
+      raise CloudServers::Exception::Connection, "Unable to reconnect to #{server} after #{count} attempts" if attempts >= 5
       attempts += 1
       @http[server].finish
       start_http(server,path,port,scheme,headers)
       retry
-    rescue ExpiredAuthTokenException
-      raise ConnectionException, "Authentication token expired and you have requested not to retry" if @retry_auth == false
+    rescue CloudServers::Exception::ExpiredAuthToken
+      raise CloudServers::Exception::Connection, "Authentication token expired and you have requested not to retry" if @retry_auth == false
       CloudFiles::Authentication.new(self)
       retry
     end
@@ -91,7 +91,7 @@ module CloudServers
     # and placed at the location identified by server_path on the new server.
     # Returns a CloudServers::Server object.  The root password is available in the adminPass instance method.
     def create_server(options)
-      raise MissingArgumentException, "Server name, flavor ID, and image ID must be supplied" unless (options[:name] && options[:flavorId] && options[:imageId])
+      raise CloudServers::Exception::MissingArgument, "Server name, flavor ID, and image ID must be supplied" unless (options[:name] && options[:flavorId] && options[:imageId])
       options[:personality] = get_personality(options[:personality])
       raise TooManyMetadataItems, "Metadata is limited to a total of #{MAX_PERSONALITY_METADATA_ITEMS} key/value pairs" if options[:metadata].is_a?(Hash) && options[:metadata].keys.size > MAX_PERSONALITY_METADATA_ITEMS
       data = JSON.generate(:server => options)
@@ -185,9 +185,9 @@ module CloudServers
       data = []
       itemcount = 0
       options.each do |localpath,srvpath|
-        raise TooManyPersonalityItemsException, "Personality files are limited to a total of #{MAX_PERSONALITY_ITEMS} items" if itemcount >= MAX_PERSONALITY_ITEMS
-        raise PersonalityFilePathTooLongException, "Server-side path of #{srvpath} exceeds the maximum length of #{MAX_SERVER_PATH_LENGTH} characters" if srvpath.size > MAX_SERVER_PATH_LENGTH
-        raise PersonalityFileTooLargeException, "Local file #{localpath} exceeds the maximum size of #{MAX_PERSONALITY_FILE_SIZE} bytes" if File.size(localpath) > MAX_PERSONALITY_FILE_SIZE
+        raise CloudServers::Exception::TooManyPersonalityItems, "Personality files are limited to a total of #{MAX_PERSONALITY_ITEMS} items" if itemcount >= MAX_PERSONALITY_ITEMS
+        raise CloudServers::Exception::PersonalityFilePathTooLong, "Server-side path of #{srvpath} exceeds the maximum length of #{MAX_SERVER_PATH_LENGTH} characters" if srvpath.size > MAX_SERVER_PATH_LENGTH
+        raise CloudServers::Exception::PersonalityFileTooLarge, "Local file #{localpath} exceeds the maximum size of #{MAX_PERSONALITY_FILE_SIZE} bytes" if File.size(localpath) > MAX_PERSONALITY_FILE_SIZE
         b64 = Base64.encode64(IO.read(localpath))
         data.push({:path => srvpath, :contents => b64})
         itemcount += 1
