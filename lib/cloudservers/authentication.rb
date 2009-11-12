@@ -19,7 +19,6 @@ module CloudServers
         raise CloudServers::Exception::Connection, "Unable to connect to #{server}"
       end
       response = server.get(path,hdrhash)
-      print "DEBUG: Response is #{response.to_hash.inspect}\n"
       if (response.code == "204")
         connection.authtoken = response["x-auth-token"]
         connection.svrmgmthost = URI.parse(response["x-server-management-url"]).host
