@@ -45,10 +45,3 @@ module CloudServers
   MAX_PERSONALITY_METADATA_ITEMS = 5
 
 end
-
-class String
-  # Monkey-patch the String class to get a method that will capitalize the first letter
-  def upcase_first
-    self[0].chr.capitalize + self[1, size]
-  end
-end

@@ -54,7 +54,7 @@ module CloudServers
       return if response.code =~ /^20.$/
       fault,info = JSON.parse(response.body).first
       begin
-        exception_class = self.const_get(fault.upcase_first)
+        exception_class = self.const_get(fault.capitalize)
         raise exception_class, info["message"]
       rescue NameError
         raise CloudServers::Exception::Other, "The server returned status #{response.code}"
