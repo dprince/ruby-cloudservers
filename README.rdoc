@@ -25,7 +25,7 @@ See the class definitions for documentation on specific methods and operations.
   require 'cloudservers'
 
   # Log into the Cloud Servers system
-  cs = CloudFiles::Connection.new(USERNAME, API_KEY)
+  cs = CloudServers::Connection.new(USERNAME, API_KEY)
 
   # Get a listing of all current servers
   >> cs.servers
