@@ -10,6 +10,7 @@ begin
     gemspec.email = "wade.minter@rackspace.com"
     gemspec.homepage = "http://github.com/minter/cloudservers"
     gemspec.authors = ["H. Wade Minter","Mike Mayo"]
+    gemspec.add_dependency 'json'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install jeweler"

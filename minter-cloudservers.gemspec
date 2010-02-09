@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
      "lib/cloudservers/image.rb",
      "lib/cloudservers/server.rb",
      "lib/cloudservers/shared_ip_group.rb",
+     "minter-cloudservers.gemspec",
      "test/cloudservers_authentication_test.rb",
      "test/test_helper.rb"
   ]
@@ -50,9 +51,12 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<json>, [">= 0"])
     else
+      s.add_dependency(%q<json>, [">= 0"])
     end
   else
+    s.add_dependency(%q<json>, [">= 0"])
   end
 end
 
