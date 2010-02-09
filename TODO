@@ -1,6 +1,13 @@
-* Work with Jorge to find out why things are getting cached when they apparently shouldn't be.
-* Find out why attempting to delete a stock system image isn't returning an error code
-* Handle managing account limits
+* There are caching bugs in the API, so that accurate information is not always returned (ie. if you add a server and
+  then list available servers, the new one will not show up.).  That needs to be corrected on the API end before
+  data will be accurate.
+
+* Find out why attempting to delete a stock system image isn't returning an error code (API issue).
+
+* Handle managing account limits.
+
 * Allow some sort of flag to get the stack trace when an exception is thrown.
+
 * Shared IP group modification code.
-* Tests.  :-)
+
+* Tests.  Accusations of heresy and/or aposty are expected.  :-)

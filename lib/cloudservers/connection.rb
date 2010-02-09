@@ -81,7 +81,8 @@ module CloudServers
     #
     #   >> cs.list_servers
     #   => [{"name"=>"MyServer", "id"=>110917}]
-    def list_servers
+    def list_servers(options = {})
+      url_params = "?limit=#{URI.escape(options[:limit].to_s)}&offset=#{URI.escape(options[:offset].to_s)}" if options[:limit] && options[:offset]
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/servers",svrmgmtport,svrmgmtscheme)
       CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       JSON.parse(response.body)["servers"]
@@ -152,7 +153,7 @@ module CloudServers
     
     # Returns a CloudServers::Image object for the image identified by the provided id.
     #
-    #   >> image = cs.get_image(2)
+    #   >> image = cs.get_image(8)
     #   => #<CloudServers::Image:0x101659698 ...>
     def get_image(id)
       CloudServers::Image.new(self,id)

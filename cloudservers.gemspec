@@ -9,17 +9,25 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["H. Wade Minter", "Mike Mayo"]
-  s.date = %q{2009-11-11}
+  s.date = %q{2010-02-09}
   s.description = %q{A Ruby API to version 1.0 of the Rackspace Cloud Servers product.}
   s.email = %q{wade.minter@rackspace.com}
+  s.extra_rdoc_files = [
+    "README.rdoc",
+     "TODO"
+  ]
   s.files = [
-    "COPYING",
+    ".gitignore",
+     "COPYING",
+     "README.rdoc",
      "Rakefile",
      "TODO",
      "VERSION",
+     "cloudservers.gemspec",
      "lib/cloudservers.rb",
      "lib/cloudservers/authentication.rb",
      "lib/cloudservers/connection.rb",
+     "lib/cloudservers/entity_manager.rb",
      "lib/cloudservers/exception.rb",
      "lib/cloudservers/flavor.rb",
      "lib/cloudservers/image.rb",
