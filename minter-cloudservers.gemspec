@@ -4,13 +4,13 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{cloudservers}
-  s.version = "0.0.0"
+  s.name = %q{minter-cloudservers}
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["H. Wade Minter", "Mike Mayo"]
   s.date = %q{2010-02-09}
-  s.description = %q{A Ruby API to version 1.0 of the Rackspace Cloud Servers product.}
+  s.description = %q{An Unofficial Ruby API to version 1.0 of the Rackspace Cloud Servers product.}
   s.email = %q{wade.minter@rackspace.com}
   s.extra_rdoc_files = [
     "README.rdoc",
@@ -23,7 +23,6 @@ Gem::Specification.new do |s|
      "Rakefile",
      "TODO",
      "VERSION",
-     "cloudservers.gemspec",
      "lib/cloudservers.rb",
      "lib/cloudservers/authentication.rb",
      "lib/cloudservers/connection.rb",
@@ -36,11 +35,11 @@ Gem::Specification.new do |s|
      "test/cloudservers_authentication_test.rb",
      "test/test_helper.rb"
   ]
-  s.homepage = %q{http://github.com/rackspace/ruby-cloudservers}
+  s.homepage = %q{http://github.com/minter/cloudservers}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.5}
-  s.summary = %q{Rackspace Cloud Servers Ruby API}
+  s.summary = %q{Unofficial Rackspace Cloud Servers Ruby API}
   s.test_files = [
     "test/cloudservers_authentication_test.rb",
      "test/test_helper.rb"
