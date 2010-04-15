@@ -9,27 +9,34 @@ module CloudServers
     attr_accessor :svrmgmtpath
     attr_accessor :svrmgmtport
     attr_accessor :svrmgmtscheme
+    attr_reader   :proxy_host
+    attr_reader   :proxy_port
     
     # Creates a new CloudServers::Connection object.  Uses CloudServers::Authentication to perform the login for the connection.
-    # The authuser is the Rackspace Cloud username, the authkey is the Rackspace Cloud API key.
     #
-    # Setting the optional retry_auth variable to false will cause an exception to be thrown if your authorization token expires.
+    # Setting the retry_auth option to false will cause an exception to be thrown if your authorization token expires.
     # Otherwise, it will attempt to reauthenticate.
-    #
-    # Setting the optional snet variable to true or setting an environment variable of RACKSPACE_SERVICENET to any value will cause 
-    # storage URLs to be returned with a prefix pointing them to the internal Rackspace service network, instead of a public URL.  
     #
     # This is useful if you are using the library on a Rackspace-hosted system, as it provides faster speeds, keeps traffic off of
     # the public network, and the bandwidth is not billed.
     #
     # This will likely be the base class for most operations.
     #
-    #   cf = CloudServers::Connection.new(MY_USERNAME, MY_API_KEY)
-    def initialize(authuser,authkey,retry_auth = true,snet=false) 
-      @authuser = authuser
-      @authkey = authkey
-      @retry_auth = retry_auth
-      @snet = (ENV['RACKSPACE_SERVICENET'] || snet) ? true : false
+    # The constructor takes a hash of options, including:
+    #
+    #   :username - Your Rackspace Cloud username *required*
+    #   :api_key - Your Rackspace Cloud API key *required*
+    #   :retry_auth - Whether to retry if your auth token expires (defaults to true)
+    #   :proxy_host - If you need to connect through a proxy, supply the hostname here
+    #   :proxy_port - If you need to connect through a proxy, supply the port here
+    #
+    #   cf = CloudServers::Connection.new(:username => 'YOUR_USERNAME', :api_key => 'YOUR_API_KEY')
+    def initialize(options = {:retry_auth => true}) 
+      @authuser = options[:username] || (raise Authentication, "Must supply a :username")
+      @authkey = options[:api_key] || (raise Authentication, "Must supply an :api_key")
+      @retry_auth = options[:retry_auth]
+      @proxy_host = options[:proxy_host]
+      @proxy_port = options[:proxy_port]
       @authok = false
       @http = {}
       CloudServers::Authentication.new(self)
@@ -236,7 +243,7 @@ module CloudServers
     def start_http(server,path,port,scheme,headers) # :nodoc:
       if (@http[server].nil?)
         begin
-          @http[server] = Net::HTTP.new(server,port)
+          @http[server] = Net::HTTP::Proxy(self.proxy_host, self.proxy_port).new(server,port)
           if scheme == "https"
             @http[server].use_ssl = true
             @http[server].verify_mode = OpenSSL::SSL::VERIFY_NONE

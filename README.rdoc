@@ -6,6 +6,8 @@ This is a Ruby interface into the Rackspace[http://rackspacecloud.com/] {Cloud S
 
 *This is not an official Rackspace-supported language binding.  It does not comply with the {Binding Specification}[http://github.com/rackspace/docs-specs-cloud-servers-language-binding].  The idea behind this implementation is to be compliant with the API spec while still providing a ruby-esque style for those who prefer it*
 
+*Note that in version 0.2.0 the connection style changed, from positional arguments to a hash of options*
+
 == Installation
 
 This source is available on Github[http://github.com/minter/ruby-cloudservers/] and the gem is available on Gemcutter[http://gemcutter.org/].  To install it, do
@@ -27,33 +29,11 @@ See the class definitions for documentation on specific methods and operations.
   require 'cloudservers'
 
   # Log into the Cloud Servers system
-  cs = CloudServers::Connection.new(USERNAME, API_KEY)
-  
-  # or...
-  cloud_servers_service = Rackspace::CloudServers::CloudServersService(USERNAME, API_KEY)
-
-  # then use different entity managers for the stuff you want to deal with
-  server_manager = cloud_servers_service.server_manager # should be create_server_manager, but hopefully that's flexible
-  image_manager = cloud_servers_service.image_manager
-	flavor_manager = cloud_servers_service.flavor_manager
-	shared_ip_group_manager = cloud_servers_service.shared_ip_group_manager
-	# idea: inject entity manager methods as class methods on entities (such as Server, etc)
-	
-	# the official namespaced style would be:
-	com::rackspace::cloud::servers::api::client::Whatever
-	
+  cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY)	
 
   # Get a listing of all current servers
   >> cs.servers
   => [{"name"=>"RenamedRubyTest", "id"=>110917}]
-
-  # or...
-  server_manager.list # should be create_list(detail = false)
-  # or even better...
-  server_manager.list({ :detail => true, :limit => 10, :offset => 30, :changed_since => 3.hours.ago })
-  # or another idea (not to spec)
-  Rackspace::CloudServers::Server.find(:all, { :detail => true, :limit => 10, :offset => 30, :changed_since => 3.hours.ago })
-  Rackspace::CloudServers::Server.find(12345)
 
   # Access a specific server
   >> server = cs.server(110917)
