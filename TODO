@@ -4,8 +4,6 @@
 
 * Add pagination in object listing.
 
-* Find out why attempting to delete a stock system image isn't returning an error code (API issue).
-
 * Add management of account limits.
 
 * Allow some sort of flag to get the stack trace when an exception is thrown.

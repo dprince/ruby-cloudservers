@@ -53,8 +53,9 @@ module CloudServers
     def self.raise_exception(response)
       return if response.code =~ /^20.$/
       fault,info = JSON.parse(response.body).first
+      print "DEBUG: Fault is #{fault}\n"
       begin
-        exception_class = self.const_get(fault.capitalize)
+        exception_class = self.const_get(fault[0,1].capitalize+fault[1,fault.length])
         raise exception_class, info["message"]
       rescue NameError
         raise CloudServers::Exception::Other, "The server returned status #{response.code}"
