@@ -1,24 +1,22 @@
-= Rackspace Cloud Servers (unofficial)
+= Rackspace Cloud Servers
 
 == Description
 
 This is a Ruby interface into the Rackspace[http://rackspacecloud.com/] {Cloud Servers}[http://www.rackspacecloud.com/cloud_hosting_products/servers] service. Cloud Servers from The Rackspace Cloud put you in complete control of your hosting infrastructure. Each Cloud Server is a fully-customizable, pay by the hour, virtualized Windows or Linux server instance that you launch, maintain, and control with full root access.
 
-*This is not an official Rackspace-supported language binding.  It does not comply with the {Binding Specification}[http://github.com/rackspace/docs-specs-cloud-servers-language-binding].  The idea behind this implementation is to be compliant with the API spec while still providing a ruby-esque style for those who prefer it*
-
 *Note that in version 0.2.0 the connection style changed, from positional arguments to a hash of options*
 
 == Installation
 
-This source is available on Github[http://github.com/minter/ruby-cloudservers/] and the gem is available on Gemcutter[http://gemcutter.org/].  To install it, do
+This source is available on Github[http://github.com/rackspace/ruby-cloudservers/] and the gem is available on Gemcutter[http://gemcutter.org/].  To install it, do
 
   gem sources -a http://gemcutter.org/ (Newer Ruby Gems have this already)
   
-  sudo gem install minter-cloudservers
+  sudo gem install cloudservers
   
 To use it in a Rails application, add the following information to your config/environment.rb
 
-  config.gem "minter-cloudfiles", :lib => "cloudservers", :source => 'http://gemcutter.org/
+  config.gem "cloudservers"
   
 
 == Examples
