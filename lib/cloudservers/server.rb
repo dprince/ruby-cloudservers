@@ -49,7 +49,7 @@ module CloudServers
       @name      = data["name"]
       @status    = data["status"]
       @progress  = data["progress"]
-      @addresses = data["addresses"]
+      @addresses = CloudServers.symbolize_keys(data["addresses"])
       @metadata  = data["metadata"]
       @hostId    = data["hostId"]
       @imageId   = data["imageId"]

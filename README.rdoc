@@ -12,7 +12,7 @@ This is a Ruby interface into the Rackspace[http://rackspacecloud.com/] {Cloud S
 
 This source is available on Github[http://github.com/minter/ruby-cloudservers/] and the gem is available on Gemcutter[http://gemcutter.org/].  To install it, do
 
-  gem sources -a http://gemcutter.org/
+  gem sources -a http://gemcutter.org/ (Newer Ruby Gems have this already)
   
   sudo gem install minter-cloudservers
   
@@ -33,7 +33,7 @@ See the class definitions for documentation on specific methods and operations.
 
   # Get a listing of all current servers
   >> cs.servers
-  => [{"name"=>"RenamedRubyTest", "id"=>110917}]
+  => [{:name=>"RenamedRubyTest", :id=>110917}]
 
   # Access a specific server
   >> server = cs.server(110917)

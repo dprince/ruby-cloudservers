@@ -84,27 +84,28 @@ module CloudServers
     end
     alias :server :get_server
     
-    # Returns an array of hashes, one for each server that exists under this account.  The hash keys are "name" and "id".
+    # Returns an array of hashes, one for each server that exists under this account.  The hash keys are :name and :id.
     #
     #   >> cs.list_servers
-    #   => [{"name"=>"MyServer", "id"=>110917}]
+    #   => [{:name=>"MyServer", :id=>110917}]
     def list_servers(options = {})
       url_params = "?limit=#{URI.escape(options[:limit].to_s)}&offset=#{URI.escape(options[:offset].to_s)}" if options[:limit] && options[:offset]
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/servers",svrmgmtport,svrmgmtscheme)
       CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      JSON.parse(response.body)["servers"]
+      CloudServers.symbolize_keys(JSON.parse(response.body)["servers"])
     end
     alias :servers :list_servers
     
     # Returns an array of hashes with more details about each server that exists under this account.  Additional information
-    # includes public and private IP addresses, status, hostID, and more.
+    # includes public and private IP addresses, status, hostID, and more.  All hash keys are symbols except for the metadata
+    # hash, which are verbatim strings.
     #
     #   >> cs.list_servers_detail
-    #   => [{"name"=>"MyServer", "addresses"=>{"public"=>["67.23.42.37"], "private"=>["10.176.241.237"]}, "metadata"=>{}, "imageId"=>10, "progress"=>100, "hostId"=>"36143b12e9e48998c2aef79b50e144d2", "flavorId"=>1, "id"=>110917, "status"=>"ACTIVE"}]
+    #   => [{:name=>"MyServer", :addresses=>{:public=>["67.23.42.37"], :private=>["10.176.241.237"]}, :metadata=>{"MyData" => "Valid"}, :imageId=>10, :progress=>100, :hostId=>"36143b12e9e48998c2aef79b50e144d2", :flavorId=>1, :id=>110917, :status=>"ACTIVE"}]
     def list_servers_detail
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/servers/detail",svrmgmtport,svrmgmtscheme)
       CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      JSON.parse(response.body)["servers"]
+      CloudServers.symbolize_keys(JSON.parse(response.body)["servers"])
     end
     alias :servers_detail :list_servers_detail
     
@@ -149,12 +150,12 @@ module CloudServers
     # any that you have created.  The "id" key in the hash can be used where imageId is required.
     #
     #   >> cs.list_images
-    #   => [{"name"=>"CentOS 5.2", "id"=>2, "updated"=>"2009-07-20T09:16:57-05:00", "status"=>"ACTIVE", "created"=>"2009-07-20T09:16:57-05:00"}, 
-    #       {"name"=>"Gentoo 2008.0", "id"=>3, "updated"=>"2009-07-20T09:16:57-05:00", "status"=>"ACTIVE", "created"=>"2009-07-20T09:16:57-05:00"},...
+    #   => [{:name=>"CentOS 5.2", :id=>2, :updated=>"2009-07-20T09:16:57-05:00", :status=>"ACTIVE", :created=>"2009-07-20T09:16:57-05:00"}, 
+    #       {:name=>"Gentoo 2008.0", :id=>3, :updated=>"2009-07-20T09:16:57-05:00", :status=>"ACTIVE", :created=>"2009-07-20T09:16:57-05:00"},...
     def list_images
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/images/detail",svrmgmtport,svrmgmtscheme)
       CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      return JSON.parse(response.body)['images']
+      CloudServers.symbolize_keys(JSON.parse(response.body)['images'])
     end
     alias :images :list_images
     
@@ -167,15 +168,15 @@ module CloudServers
     end
     alias :image :get_image
     
-    # Returns an array of hashes listing all available server flavors.  The "id" key in the hash can be used when flavorId is required.
+    # Returns an array of hashes listing all available server flavors.  The :id key in the hash can be used when flavorId is required.
     #
     #   >> cs.list_flavors
-    #   => [{"name"=>"256 server", "id"=>1, "ram"=>256, "disk"=>10}, 
-    #       {"name"=>"512 server", "id"=>2, "ram"=>512, "disk"=>20},...
+    #   => [{:name=>"256 server", :id=>1, :ram=>256, :disk=>10}, 
+    #       {:name=>"512 server", :id=>2, :ram=>512, :disk=>20},...
     def list_flavors
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/flavors/detail",svrmgmtport,svrmgmtscheme)
       CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      return JSON.parse(response.body)['flavors']
+      CloudServers.symbolize_keys(JSON.parse(response.body)['flavors'])
     end
     alias :flavors :list_flavors
     
@@ -188,14 +189,14 @@ module CloudServers
     end
     alias :flavor :get_flavor
     
-    # Returns an array of hashes for all Shared IP Groups that are available.  The "id" key can be used to find that specific object.
+    # Returns an array of hashes for all Shared IP Groups that are available.  The :id key can be used to find that specific object.
     #
     #   >> cs.list_shared_ip_groups
-    #   => [{"name"=>"New Group", "id"=>127}]
+    #   => [{:name=>"New Group", :id=>127}]
     def list_shared_ip_groups
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/shared_ip_groups/detail",svrmgmtport,svrmgmtscheme)
       CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      return JSON.parse(response.body)['sharedIpGroups']
+      CloudServers.symbolize_keys(JSON.parse(response.body)['sharedIpGroups'])
     end
     alias :shared_ip_groups :list_shared_ip_groups
     
@@ -224,6 +225,35 @@ module CloudServers
       CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       ip_group = JSON.parse(response.body)['sharedIpGroup']
       CloudServers::SharedIPGroup.new(self,ip_group['id'])
+    end
+    
+    # Returns the current state of the programatic API limits.  Each account has certain limits on the number of resources
+    # allowed in the account, and a rate of API operations.
+    #
+    # The operation returns a hash.  The :absolute hash key reveals the account resource limits, including the maxmimum 
+    # amount of total RAM that can be allocated (combined among all servers), the maximum members of an IP group, and the 
+    # maximum number of IP groups that can be created.
+    #
+    # The :rate hash key returns an array of hashes indicating the limits on the number of operations that can be performed in a 
+    # given amount of time.  An entry in this array looks like:
+    #
+    #   {:regex=>"^/servers", :value=>50, :verb=>"POST", :remaining=>50, :unit=>"DAY", :resetTime=>1272399820, :URI=>"/servers*"}
+    #
+    # This indicates that you can only run 50 POST operations against URLs in the /servers URI space per day, we have not run
+    # any operations today (50 remaining), and gives the Unix time that the limits reset.
+    #
+    # Another example is:
+    # 
+    #   {:regex=>".*", :value=>10, :verb=>"PUT", :remaining=>10, :unit=>"MINUTE", :resetTime=>1272399820, :URI=>"*"}
+    #
+    # This says that you can run 10 PUT operations on all possible URLs per minute, and also gives the number remaining and the
+    # time that the limit resets.
+    #
+    # Use this information as you're building your applications to put in relevant pauses if you approach your API limitations.
+    def limits
+      response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/limits",svrmgmtport,svrmgmtscheme)
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      CloudServers.symbolize_keys(JSON.parse(response.body)['limits'])
     end
     
     private
@@ -271,7 +301,6 @@ module CloudServers
       end
       return data
     end
-    
-    
+        
   end
 end
