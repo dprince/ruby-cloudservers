@@ -79,5 +79,12 @@ module CloudServers
     end
   end
   
+  def self.paginate(options = {})
+    path_args = []
+    path_args.push(URI.encode("limit=#{options[:limit]}")) if options[:limit]
+    path_args.push(URI.encode("offset=#{options[:offset]}")) if options[:offset]
+    path_args.join("&")
+  end
+  
 
 end

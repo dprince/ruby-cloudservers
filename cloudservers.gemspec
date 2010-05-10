@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "Rakefile",
      "TODO",
      "VERSION",
+     "cloudservers.gemspec",
      "lib/cloudservers.rb",
      "lib/cloudservers/authentication.rb",
      "lib/cloudservers/connection.rb",
