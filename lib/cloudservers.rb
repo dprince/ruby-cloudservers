@@ -2,7 +2,7 @@
 # 
 # == Cloud Servers API
 # ==== Connects Ruby Applications to Rackspace's {Cloud Servers service}[http://www.rackspacecloud.com/cloud_hosting_products/servers]
-# By H. Wade Minter <wade.minter@rackspace.com> and Mike Mayo <mike.mayo@rackspace.com>
+# By H. Wade Minter <minter@lunenburg.org> and Mike Mayo <mike.mayo@rackspace.com>
 #
 # See COPYING for license information.
 # Copyright (c) 2009, Rackspace US, Inc.
