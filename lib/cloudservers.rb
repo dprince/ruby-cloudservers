@@ -23,6 +23,7 @@ module CloudServers
   require 'uri'
   require 'rubygems'
   require 'json'
+  require 'date'
 
   unless "".respond_to? :each_char
     require "jcode"
