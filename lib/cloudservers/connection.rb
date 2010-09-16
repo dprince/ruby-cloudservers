@@ -62,7 +62,7 @@ module CloudServers
       response
     rescue Errno::EPIPE, Timeout::Error, Errno::EINVAL, EOFError
       # Server closed the connection, retry
-      raise CloudServers::Exception::Connection, "Unable to reconnect to #{server} after #{count} attempts" if attempts >= 5
+      raise CloudServers::Exception::Connection, "Unable to reconnect to #{server} after #{attempts} attempts" if attempts >= 5
       attempts += 1
       @http[server].finish
       start_http(server,path,port,scheme,headers)
