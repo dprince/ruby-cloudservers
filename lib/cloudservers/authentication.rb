@@ -11,9 +11,11 @@ module CloudServers
       path = '/v1.0'
       hdrhash = { "X-Auth-User" => connection.authuser, "X-Auth-Key" => connection.authkey }
       begin
-        server = Net::HTTP::Proxy(connection.proxy_host, connection.proxy_port).new('auth.api.rackspacecloud.com',443)
-        server.use_ssl = true
-        server.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        server = Net::HTTP::Proxy(connection.proxy_host, connection.proxy_port).new(connection.api_host, connection.api_port)
+        if connection.api_scheme == "https"
+          server.use_ssl = true
+          server.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
         server.start
       rescue
         raise CloudServers::Exception::Connection, "Unable to connect to #{server}"

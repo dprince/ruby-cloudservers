@@ -49,6 +49,8 @@ module CloudServers
     end
     class MissingArgument             < StandardError # :nodoc:
     end
+    class InvalidArgument             < StandardError # :nodoc:
+    end
     class TooManyPersonalityItems     < StandardError # :nodoc:
     end
     class PersonalityFilePathTooLong  < StandardError # :nodoc:

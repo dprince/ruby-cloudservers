@@ -9,6 +9,9 @@ module CloudServers
     attr_accessor :svrmgmtpath
     attr_accessor :svrmgmtport
     attr_accessor :svrmgmtscheme
+    attr_reader   :api_host
+    attr_reader   :api_port
+    attr_reader   :api_scheme
     attr_reader   :proxy_host
     attr_reader   :proxy_port
     
@@ -26,14 +29,28 @@ module CloudServers
     #
     #   :username - Your Rackspace Cloud username *required*
     #   :api_key - Your Rackspace Cloud API key *required*
+    #   :api_url - The url of the Openstack Compute API server.
     #   :retry_auth - Whether to retry if your auth token expires (defaults to true)
     #   :proxy_host - If you need to connect through a proxy, supply the hostname here
     #   :proxy_port - If you need to connect through a proxy, supply the port here
     #
     #   cf = CloudServers::Connection.new(:username => 'YOUR_USERNAME', :api_key => 'YOUR_API_KEY')
     def initialize(options = {:retry_auth => true}) 
-      @authuser = options[:username] || (raise Exception::Authentication, "Must supply a :username")
-      @authkey = options[:api_key] || (raise Exception::Authentication, "Must supply an :api_key")
+      @authuser = options[:username] || (raise Exception::MissingArgument, "Must supply a :username")
+      @authkey = options[:api_key] || (raise Exception::MissingArgument, "Must supply an :api_key")
+      @api_url = options[:api_url] || (raise Exception::MissingArgument, "Must supply an :api_url")
+
+      api_uri=nil
+      begin
+        api_uri=URI.parse(@api_url)
+      rescue Exception => e
+        raise Exception::InvalidArgument, "Invalid :api_url parameter: #{e.message}"
+      end
+      raise Exception::InvalidArgument, "Invalid :api_url parameter." if api_uri.nil? or api_uri.host.nil?
+      @api_host = api_uri.host
+      @api_port = api_uri.port
+      @api_scheme = api_uri.scheme
+
       @retry_auth = options[:retry_auth]
       @proxy_host = options[:proxy_host]
       @proxy_port = options[:proxy_port]
