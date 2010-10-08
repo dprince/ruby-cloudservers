@@ -66,7 +66,12 @@ module CloudServers
     def self.raise_exception(response)
       return if response.code =~ /^20.$/
       begin
-        fault,info = JSON.parse(response.body).first
+        fault = nil
+        info = nil
+        JSON.parse(response.body).each_pair do |key, val|
+			fault=key
+			info=val
+		end
         exception_class = self.const_get(fault[0,1].capitalize+fault[1,fault.length])
         raise exception_class.new(info["message"], response.code, response.body)
       rescue NameError
