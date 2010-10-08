@@ -249,6 +249,37 @@ module CloudServers
       CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
-    
+
+    # Share IP between servers in Shared IP group.
+    # Takes a hash of the form: {:sharedIpGroupId => "1234", :ipAddress => "67.23.10.132", :configureServer => false} as an argument.
+    # The :sharedIpGroupId key is required.
+    # The :ipAddress key is required.
+    # The :configureServer key is optional and defaults to false.
+    #
+    #   >> server.share_ip(:sharedIpGroupId => 100, :ipAddress => "67.23.10.132")
+    #   => true
+    def share_ip(options)
+      raise CloudServers::Exception::MissingArgument, "Shared IP Group ID must be supplied" unless options[:sharedIpGroupId]
+      raise CloudServers::Exception::MissingArgument, "Ip Address must be supplied" unless options[:ipAddress]
+      options[:configureServer] = false if options[:configureServer].nil?
+      data = JSON.generate(:shareIp => {:sharedIpGroupId => options[:sharedIpGroupId], :configureServer => options[:configureServer]})
+      response = @connection.csreq("PUT",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/ips/public/#{options[:ipAddress]}",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      true
+    end
+
+    # Unshare an IP address.
+    # Takes a hash of the form: {:ipAddress => "67.23.10.132"} as an argument.
+    # The :ipAddress key is required.
+    #
+    #   >> server.unshare_ip(:ipAddress => "67.23.10.132")
+    #   => true
+    def unshare_ip(options)
+      raise CloudServers::Exception::MissingArgument, "Ip Address must be supplied" unless options[:ipAddress]
+      response = @connection.csreq("DELETE",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/ips/public/#{options[:ipAddress]}",@svrmgmtport,@svrmgmtscheme)
+      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      true
+    end
+ 
   end
 end
