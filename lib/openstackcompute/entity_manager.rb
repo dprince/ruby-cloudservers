@@ -1,4 +1,4 @@
-module CloudServers
+module OpenStackCompute
   class EntityManager
   end
 end

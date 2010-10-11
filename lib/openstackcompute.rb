@@ -10,12 +10,12 @@
 # 
 # === Documentation & Examples
 # To begin reviewing the available methods and examples, peruse the README.rodc file, or begin by looking at documentation for the 
-# CloudServers::Connection class.
+# OpenStackCompute::Connection class.
 #
-# The CloudServers class is the base class.  Not much of note aside from housekeeping happens here.
-# To create a new CloudServers connection, use the CloudServers::Connection.new('user_name', 'api_key') method.
+# The OpenStackCompute class is the base class.  Not much of note aside from housekeeping happens here.
+# To create a new OpenStackCompute connection, use the OpenStackCompute::Connection.new('user_name', 'api_key') method.
 
-module CloudServers
+module OpenStackCompute
 
   VERSION = IO.read(File.dirname(__FILE__) + '/../VERSION')
   require 'net/http'
@@ -31,13 +31,13 @@ module CloudServers
   end
 
   $:.unshift(File.dirname(__FILE__))
-  require 'cloudservers/authentication'
-  require 'cloudservers/connection'
-  require 'cloudservers/server'
-  require 'cloudservers/image'
-  require 'cloudservers/flavor'
-  require 'cloudservers/shared_ip_group'
-  require 'cloudservers/exception'
+  require 'openstackcompute/authentication'
+  require 'openstackcompute/connection'
+  require 'openstackcompute/server'
+  require 'openstackcompute/image'
+  require 'openstackcompute/flavor'
+  require 'openstackcompute/shared_ip_group'
+  require 'openstackcompute/exception'
   
   # Constants that set limits on server creation
   MAX_PERSONALITY_ITEMS = 5

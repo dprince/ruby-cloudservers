@@ -1,7 +1,0 @@
-* Allow some sort of flag to get the stack trace when an exception is thrown.
-
-* Shared IP group modification code.
-
-* Support the changes-since parameter.
-
-* Tests.  Accusations of heresy and/or apostasy are expected.  :-)

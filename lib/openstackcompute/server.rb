@@ -1,4 +1,4 @@
-module CloudServers
+module OpenStackCompute
   class Server
     
     attr_reader   :id
@@ -16,10 +16,10 @@ module CloudServers
     # This class is the representation of a single Cloud Server object.  The constructor finds the server identified by the specified
     # ID number, accesses the API via the populate method to get information about that server, and returns the object.
     #
-    # Will be called via the get_server or create_server methods on the CloudServers::Connection object, and will likely not be called directly.
+    # Will be called via the get_server or create_server methods on the OpenStackCompute::Connection object, and will likely not be called directly.
     #
     #   >> server = cs.get_server(110917)
-    #   => #<CloudServers::Server:0x1014e5438 ....>
+    #   => #<OpenStackCompute::Server:0x1014e5438 ....>
     #   >> server.name
     #   => "RenamedRubyTest"
     def initialize(connection,id)
@@ -43,13 +43,13 @@ module CloudServers
     #  => true
     def populate
       response = @connection.csreq("GET",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(@id.to_s)}",@svrmgmtport,@svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       data = JSON.parse(response.body)["server"]
       @id        = data["id"]
       @name      = data["name"]
       @status    = data["status"]
       @progress  = data["progress"]
-      @addresses = CloudServers.symbolize_keys(data["addresses"])
+      @addresses = OpenStackCompute.symbolize_keys(data["addresses"])
       @metadata  = data["metadata"]
       @hostId    = data["hostId"]
       @imageId   = data["imageId"]
@@ -59,24 +59,24 @@ module CloudServers
     end
     alias :refresh :populate
     
-    # Returns a new CloudServers::Flavor object for the flavor assigned to this server.
+    # Returns a new OpenStackCompute::Flavor object for the flavor assigned to this server.
     #
     #   >> flavor = server.flavor
-    #   => #<CloudServers::Flavor:0x1014aac20 @name="256 server", @disk=10, @id=1, @ram=256>
+    #   => #<OpenStackCompute::Flavor:0x1014aac20 @name="256 server", @disk=10, @id=1, @ram=256>
     #   >> flavor.name
     #   => "256 server"
     def flavor
-      CloudServers::Flavor.new(@connection,self.flavorId)
+      OpenStackCompute::Flavor.new(@connection,self.flavorId)
     end
     
-    # Returns a new CloudServers::Image object for the image assigned to this server.
+    # Returns a new OpenStackCompute::Image object for the image assigned to this server.
     #
     #   >> image = server.image
-    #   => #<CloudServers::Image:0x10149a960 ...>
+    #   => #<OpenStackCompute::Image:0x10149a960 ...>
     #   >> image.name
     #   => "Ubuntu 8.04.2 LTS (hardy)"
     def image
-      CloudServers::Image.new(@connection,self.imageId)
+      OpenStackCompute::Image.new(@connection,self.imageId)
     end
     
     # Sends an API request to reboot this server.  Takes an optional argument for the type of reboot, which can be "SOFT" (graceful shutdown)
@@ -89,7 +89,7 @@ module CloudServers
     def reboot(type="SOFT")
       data = JSON.generate(:reboot => {:type => type})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
     
@@ -116,7 +116,7 @@ module CloudServers
     def update(options)
       data = JSON.generate(:server => options)
       response = @connection.csreq("PUT",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       # If we rename the instance, repopulate the object
       self.populate if options[:name]
       true
@@ -130,7 +130,7 @@ module CloudServers
     #   => true
     def delete!
       response = @connection.csreq("DELETE",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}",@svrmgmtport,@svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
     
@@ -146,7 +146,7 @@ module CloudServers
     def rebuild!(imageId = self.imageId)
       data = JSON.generate(:rebuild => {:imageId => imageId})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       self.populate
       true
     end
@@ -155,31 +155,31 @@ module CloudServers
     # snapshot is saved asynchronously.  Check the image status to make sure that it is ACTIVE before attempting to perform operations
     # on it.
     # 
-    # A name string for the saved image must be provided.  A new CloudServers::Image object for the saved image is returned.
+    # A name string for the saved image must be provided.  A new OpenStackCompute::Image object for the saved image is returned.
     #
     # The image is saved as a backup, of which there are only three available slots.  If there are no backup slots available, 
-    # A CloudServers::Exception::CloudServersFault will be raised.
+    # A OpenStackCompute::Exception::OpenStackComputeFault will be raised.
     #
     #   >> image = server.create_image("My Rails Server")
     #   => 
     def create_image(name)
       data = JSON.generate(:image => {:serverId => self.id, :name => name})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/images",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      CloudServers::Image.new(@connection,JSON.parse(response.body)['image']['id'])
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Image.new(@connection,JSON.parse(response.body)['image']['id'])
     end
     
     # Resizes the server to the size contained in the server flavor found at ID flavorId.  The server name, ID number, and IP addresses 
     # will remain the same.  After the resize is done, the server.status will be set to "VERIFY_RESIZE" until the resize is confirmed or reverted.
     #
-    # Refreshes the CloudServers::Server object, and returns true if the API call succeeds.
+    # Refreshes the OpenStackCompute::Server object, and returns true if the API call succeeds.
     # 
     #   >> server.resize!(1)
     #   => true
     def resize!(flavorId)
       data = JSON.generate(:resize => {:flavorId => flavorId})
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       self.populate
       true
     end
@@ -194,7 +194,7 @@ module CloudServers
       # If the resize bug gets figured out, should put a check here to make sure that it's in the proper state for this.
       data = JSON.generate(:confirmResize => nil)
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       self.populate
       true
     end
@@ -210,7 +210,7 @@ module CloudServers
       # If the resize bug gets figured out, should put a check here to make sure that it's in the proper state for this.
       data = JSON.generate(:revertResize => nil)
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/action",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       self.populate
       true
     end
@@ -222,7 +222,7 @@ module CloudServers
     #   => {"weekly"=>"THURSDAY", "daily"=>"H_0400_0600", "enabled"=>true}
     def backup_schedule
       response = @connection.csreq("GET",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(@id.to_s)}/backup_schedule",@svrmgmtport,@svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       JSON.parse(response.body)['backupSchedule']
     end
     
@@ -234,7 +234,7 @@ module CloudServers
     def backup_schedule=(options)
       data = JSON.generate('backupSchedule' => options)
       response = @connection.csreq("POST",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/backup_schedule",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
     
@@ -246,7 +246,7 @@ module CloudServers
     #   => true
     def disable_backup_schedule!
       response = @connection.csreq("DELETE",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/backup_schedule",@svrmgmtport,@svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
 
@@ -259,12 +259,12 @@ module CloudServers
     #   >> server.share_ip(:sharedIpGroupId => 100, :ipAddress => "67.23.10.132")
     #   => true
     def share_ip(options)
-      raise CloudServers::Exception::MissingArgument, "Shared IP Group ID must be supplied" unless options[:sharedIpGroupId]
-      raise CloudServers::Exception::MissingArgument, "Ip Address must be supplied" unless options[:ipAddress]
+      raise OpenStackCompute::Exception::MissingArgument, "Shared IP Group ID must be supplied" unless options[:sharedIpGroupId]
+      raise OpenStackCompute::Exception::MissingArgument, "Ip Address must be supplied" unless options[:ipAddress]
       options[:configureServer] = false if options[:configureServer].nil?
       data = JSON.generate(:shareIp => {:sharedIpGroupId => options[:sharedIpGroupId], :configureServer => options[:configureServer]})
       response = @connection.csreq("PUT",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/ips/public/#{options[:ipAddress]}",@svrmgmtport,@svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
 
@@ -275,9 +275,9 @@ module CloudServers
     #   >> server.unshare_ip(:ipAddress => "67.23.10.132")
     #   => true
     def unshare_ip(options)
-      raise CloudServers::Exception::MissingArgument, "Ip Address must be supplied" unless options[:ipAddress]
+      raise OpenStackCompute::Exception::MissingArgument, "Ip Address must be supplied" unless options[:ipAddress]
       response = @connection.csreq("DELETE",@svrmgmthost,"#{@svrmgmtpath}/servers/#{URI.encode(self.id.to_s)}/ips/public/#{options[:ipAddress]}",@svrmgmtport,@svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
  

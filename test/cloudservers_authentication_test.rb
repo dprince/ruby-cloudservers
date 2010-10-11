@@ -9,8 +9,8 @@ class CloudserversAuthenticationTest < Test::Unit::TestCase
     server.stubs(:get).returns(response)
     Net::HTTP.stubs(:new).returns(server)
     connection = stub(:authuser => 'bad_user', :authkey => 'bad_key', :api_host => "a.b.c", :api_port => "443", :api_scheme => "https", :authok= => true, :authtoken= => true, :svrmgmthost= => "", :svrmgmtpath= => "", :svrmgmtpath => "", :svrmgmtport= => "", :svrmgmtscheme= => "", :proxy_host => nil, :proxy_port => nil)
-    result = CloudServers::Authentication.new(connection)
-    assert_equal result.class, CloudServers::Authentication
+    result = OpenStackCompute::Authentication.new(connection)
+    assert_equal result.class, OpenStackCompute::Authentication
   end
   
   def test_bad_authentication
@@ -20,16 +20,16 @@ class CloudserversAuthenticationTest < Test::Unit::TestCase
     server.stubs(:get).returns(response)
     Net::HTTP.stubs(:new).returns(server)
     connection = stub(:authuser => 'bad_user', :authkey => 'bad_key', :api_host => "a.b.c", :api_port => "443", :api_scheme => "https", :authok= => true, :authtoken= => true, :proxy_host => nil, :proxy_port => nil)
-    assert_raises(CloudServers::Exception::Authentication) do
-      result = CloudServers::Authentication.new(connection)
+    assert_raises(OpenStackCompute::Exception::Authentication) do
+      result = OpenStackCompute::Authentication.new(connection)
     end
   end
     
   def test_bad_hostname
-    Net::HTTP.stubs(:new).raises(CloudServers::Exception::Connection)
+    Net::HTTP.stubs(:new).raises(OpenStackCompute::Exception::Connection)
     connection = stub(:authuser => 'bad_user', :authkey => 'bad_key', :api_host => "a.b.c", :api_port => "443", :api_scheme => "https", :authok= => true, :authtoken= => true, :proxy_host => nil, :proxy_port => nil)
-    assert_raises(CloudServers::Exception::Connection) do
-      result = CloudServers::Authentication.new(connection)
+    assert_raises(OpenStackCompute::Exception::Connection) do
+      result = OpenStackCompute::Authentication.new(connection)
     end
   end
     

@@ -1,33 +1,17 @@
-= Rackspace Cloud Servers
+= Ruby OpenStack
 
 == Description
 
-This is a Ruby interface into the Rackspace[http://rackspacecloud.com/] {Cloud Servers}[http://www.rackspacecloud.com/cloud_hosting_products/servers] service. Cloud Servers from The Rackspace Cloud put you in complete control of your hosting infrastructure. Each Cloud Server is a fully-customizable, pay by the hour, virtualized Windows or Linux server instance that you launch, maintain, and control with full root access.
-
-*Note that in version 0.2.0 the connection style changed, from positional arguments to a hash of options*
-
-== Installation
-
-This source is available on Github[http://github.com/rackspace/ruby-cloudservers/] and the gem is available on Gemcutter[http://gemcutter.org/].  To install it, do
-
-  gem sources -a http://gemcutter.org/ (Newer Ruby Gems have this already)
-  
-  sudo gem install cloudservers
-  
-To use it in a Rails application, add the following information to your config/environment.rb
-
-  config.gem "cloudservers"
-  
+Ruby Openstack binding based on the Rackspace Cloud API.
 
 == Examples
 
 See the class definitions for documentation on specific methods and operations.
 
-  require 'rubygems'
-  require 'cloudservers'
+  require 'openstack/compute'
 
   # Log into the Cloud Servers system
-  cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY)	
+  cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY, :api_url => API_URL)	
 
   # Get a listing of all current servers
   >> cs.servers
@@ -80,7 +64,9 @@ See the class definitions for documentation on specific methods and operations.
 
 == Authors
 
-By H. Wade Minter <wade.minter@rackspace.com> and Mike Mayo <mike.mayo@rackspace.com>
+By Dan Prince <dan.prince@rackspace.com>.
+
+Based on the Rackspace Cloud API by Wade Mintor and Mike Mayo.
 
 == License
 

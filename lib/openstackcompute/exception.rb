@@ -1,7 +1,7 @@
-module CloudServers
+module OpenStackCompute
   class Exception
 
-    class CloudServersError < StandardError
+    class OpenStackComputeError < StandardError
 
       attr_reader :response_body
       attr_reader :response_code
@@ -14,33 +14,33 @@ module CloudServers
 
     end
     
-    class CloudServersFault           < CloudServersError # :nodoc:
+    class OpenStackComputeFault           < OpenStackComputeError # :nodoc:
     end
-    class ServiceUnavailable          < CloudServersError # :nodoc:
+    class ServiceUnavailable          < OpenStackComputeError # :nodoc:
     end
-    class Unauthorized                < CloudServersError # :nodoc:
+    class Unauthorized                < OpenStackComputeError # :nodoc:
     end
-    class BadRequest                  < CloudServersError # :nodoc:
+    class BadRequest                  < OpenStackComputeError # :nodoc:
     end
-    class OverLimit                   < CloudServersError # :nodoc:
+    class OverLimit                   < OpenStackComputeError # :nodoc:
     end
-    class BadMediaType                < CloudServersError # :nodoc:
+    class BadMediaType                < OpenStackComputeError # :nodoc:
     end
-    class BadMethod                   < CloudServersError # :nodoc:
+    class BadMethod                   < OpenStackComputeError # :nodoc:
     end
-    class ItemNotFound                < CloudServersError # :nodoc:
+    class ItemNotFound                < OpenStackComputeError # :nodoc:
     end
-    class BuildInProgress             < CloudServersError # :nodoc:
+    class BuildInProgress             < OpenStackComputeError # :nodoc:
     end
-    class ServerCapacityUnavailable   < CloudServersError # :nodoc:
+    class ServerCapacityUnavailable   < OpenStackComputeError # :nodoc:
     end
-    class BackupOrResizeInProgress    < CloudServersError # :nodoc:
+    class BackupOrResizeInProgress    < OpenStackComputeError # :nodoc:
     end
-    class ResizeNotAllowed            < CloudServersError # :nodoc:
+    class ResizeNotAllowed            < OpenStackComputeError # :nodoc:
     end
-    class NotImplemented              < CloudServersError # :nodoc:
+    class NotImplemented              < OpenStackComputeError # :nodoc:
     end
-    class Other                       < CloudServersError # :nodoc:
+    class Other                       < OpenStackComputeError # :nodoc:
     end
     
     # Plus some others that we define here
@@ -64,7 +64,7 @@ module CloudServers
         
     # In the event of a non-200 HTTP status code, this method takes the HTTP response, parses
     # the JSON from the body to get more information about the exception, then raises the
-    # proper error.  Note that all exceptions are scoped in the CloudServers::Exception namespace.
+    # proper error.  Note that all exceptions are scoped in the OpenStackCompute::Exception namespace.
     def self.raise_exception(response)
       return if response.code =~ /^20.$/
       begin
@@ -77,7 +77,7 @@ module CloudServers
         exception_class = self.const_get(fault[0,1].capitalize+fault[1,fault.length])
         raise exception_class.new(info["message"], response.code, response.body)
       rescue NameError
-        raise CloudServers::Exception::Other.new("The server returned status #{response.code}", response.code, response.body)
+        raise OpenStackCompute::Exception::Other.new("The server returned status #{response.code}", response.code, response.body)
       end
     end
     

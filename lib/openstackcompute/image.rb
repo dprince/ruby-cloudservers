@@ -1,4 +1,4 @@
-module CloudServers
+module OpenStackCompute
   class Image
 
     attr_reader :id
@@ -11,12 +11,12 @@ module CloudServers
     
     # This class provides an object for the "Image" of a server.  The Image refers to the Operating System type and version.
     #
-    # Returns the Image object identifed by the supplied ID number.  Called from the get_image instance method of CloudServers::Connection,
+    # Returns the Image object identifed by the supplied ID number.  Called from the get_image instance method of OpenStackCompute::Connection,
     # it will likely not be called directly from user code.
     #
-    #   >> cs = CloudServers::Connection.new(USERNAME,API_KEY)
+    #   >> cs = OpenStackCompute::Connection.new(USERNAME,API_KEY)
     #   >> image = cs.get_image(2)
-    #   => #<CloudServers::Image:0x1015371c0 ...>
+    #   => #<OpenStackCompute::Image:0x1015371c0 ...>
     #   >> image.name
     #   => "CentOS 5.2"    
     def initialize(connection,id)
@@ -32,7 +32,7 @@ module CloudServers
     #   => true
     def populate
       response = @connection.csreq("GET",@connection.svrmgmthost,"#{@connection.svrmgmtpath}/images/#{URI.escape(self.id.to_s)}",@connection.svrmgmtport,@connection.svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       data = JSON.parse(response.body)['image']
       @id = data['id']
       @name = data['name']
@@ -52,7 +52,7 @@ module CloudServers
     #   => true
     def delete!
       response = @connection.csreq("DELETE",@connection.svrmgmthost,"#{@connection.svrmgmtpath}/images/#{URI.escape(self.id.to_s)}",@connection.svrmgmtport,@connection.svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       true
     end
     

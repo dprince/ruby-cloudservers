@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class CloudServersServersTest < Test::Unit::TestCase
+class OpenStackComputeServersTest < Test::Unit::TestCase
 
   include TestConnection
 
@@ -97,7 +97,7 @@ json_response = %{{
 
     server=get_test_server
 
-    assert_raises(CloudServers::Exception::MissingArgument) do
+    assert_raises(OpenStackCompute::Exception::MissingArgument) do
       assert server.share_ip(:ipAddress => "67.23.10.132")
     end
 
@@ -107,7 +107,7 @@ json_response = %{{
 
     server=get_test_server
 
-    assert_raises(CloudServers::Exception::MissingArgument) do
+    assert_raises(OpenStackCompute::Exception::MissingArgument) do
       assert server.share_ip(:sharedIpGroupId => 100)
     end
 
@@ -129,7 +129,7 @@ json_response = %{{
 
     server=get_test_server
 
-    assert_raises(CloudServers::Exception::MissingArgument) do
+    assert_raises(OpenStackCompute::Exception::MissingArgument) do
       assert server.share_ip({})
     end
 

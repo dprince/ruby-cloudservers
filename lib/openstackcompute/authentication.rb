@@ -1,4 +1,4 @@
-module CloudServers
+module OpenStackCompute
   class Authentication
     
     # Performs an authentication to the Rackspace Cloud authorization servers.  Opens a new HTTP connection to the API server,
@@ -18,7 +18,7 @@ module CloudServers
         end
         server.start
       rescue
-        raise CloudServers::Exception::Connection, "Unable to connect to #{server}"
+        raise OpenStackCompute::Exception::Connection, "Unable to connect to #{server}"
       end
       response = server.get(path,hdrhash)
       if (response.code == "204")
@@ -32,7 +32,7 @@ module CloudServers
         connection.authok = true
       else
         connection.authtoken = false
-        raise CloudServers::Exception::Authentication, "Authentication failed with response code #{response.code}"
+        raise OpenStackCompute::Exception::Authentication, "Authentication failed with response code #{response.code}"
       end
       server.finish
     end

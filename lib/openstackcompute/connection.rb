@@ -1,4 +1,4 @@
-module CloudServers
+module OpenStackCompute
   class Connection
     
     attr_reader   :authuser
@@ -15,7 +15,7 @@ module CloudServers
     attr_reader   :proxy_host
     attr_reader   :proxy_port
     
-    # Creates a new CloudServers::Connection object.  Uses CloudServers::Authentication to perform the login for the connection.
+    # Creates a new OpenStackCompute::Connection object.  Uses OpenStackCompute::Authentication to perform the login for the connection.
     #
     # Setting the retry_auth option to false will cause an exception to be thrown if your authorization token expires.
     # Otherwise, it will attempt to reauthenticate.
@@ -34,7 +34,7 @@ module CloudServers
     #   :proxy_host - If you need to connect through a proxy, supply the hostname here
     #   :proxy_port - If you need to connect through a proxy, supply the port here
     #
-    #   cf = CloudServers::Connection.new(:username => 'YOUR_USERNAME', :api_key => 'YOUR_API_KEY')
+    #   cf = OpenStackCompute::Connection.new(:username => 'YOUR_USERNAME', :api_key => 'YOUR_API_KEY')
     def initialize(options = {:retry_auth => true}) 
       @authuser = options[:username] || (raise Exception::MissingArgument, "Must supply a :username")
       @authkey = options[:api_key] || (raise Exception::MissingArgument, "Must supply an :api_key")
@@ -56,7 +56,7 @@ module CloudServers
       @proxy_port = options[:proxy_port]
       @authok = false
       @http = {}
-      CloudServers::Authentication.new(self)
+      OpenStackCompute::Authentication.new(self)
     end
     
     # Returns true if the authentication was successful and returns false otherwise.
@@ -75,29 +75,29 @@ module CloudServers
       request = Net::HTTP.const_get(method.to_s.capitalize).new(path,hdrhash)
       request.body = data
       response = @http[server].request(request)
-      raise CloudServers::Exception::ExpiredAuthToken if response.code == "401"
+      raise OpenStackCompute::Exception::ExpiredAuthToken if response.code == "401"
       response
     rescue Errno::EPIPE, Timeout::Error, Errno::EINVAL, EOFError
       # Server closed the connection, retry
-      raise CloudServers::Exception::Connection, "Unable to reconnect to #{server} after #{attempts} attempts" if attempts >= 5
+      raise OpenStackCompute::Exception::Connection, "Unable to reconnect to #{server} after #{attempts} attempts" if attempts >= 5
       attempts += 1
       @http[server].finish
       start_http(server,path,port,scheme,headers)
       retry
-    rescue CloudServers::Exception::ExpiredAuthToken
-      raise CloudServers::Exception::Connection, "Authentication token expired and you have requested not to retry" if @retry_auth == false
+    rescue OpenStackCompute::Exception::ExpiredAuthToken
+      raise OpenStackCompute::Exception::Connection, "Authentication token expired and you have requested not to retry" if @retry_auth == false
       CloudFiles::Authentication.new(self)
       retry
     end
     
-    # Returns the CloudServers::Server object identified by the given id.
+    # Returns the OpenStackCompute::Server object identified by the given id.
     #
     #   >> server = cs.get_server(110917)
-    #   => #<CloudServers::Server:0x101407ae8 ...>
+    #   => #<OpenStackCompute::Server:0x101407ae8 ...>
     #   >> server.name
     #   => "MyServer"
     def get_server(id)
-      CloudServers::Server.new(self,id)
+      OpenStackCompute::Server.new(self,id)
     end
     alias :server :get_server
     
@@ -113,10 +113,10 @@ module CloudServers
     #       {:name=>"demo-aicache1", :id=>187853}]
     def list_servers(options = {})
       anti_cache_param="cacheid=#{Time.now.to_i}"
-      path = CloudServers.paginate(options).empty? ? "#{svrmgmtpath}/servers?#{anti_cache_param}" : "#{svrmgmtpath}/servers?#{CloudServers.paginate(options)}&#{anti_cache_param}"
+      path = OpenStackCompute.paginate(options).empty? ? "#{svrmgmtpath}/servers?#{anti_cache_param}" : "#{svrmgmtpath}/servers?#{OpenStackCompute.paginate(options)}&#{anti_cache_param}"
       response = csreq("GET",svrmgmthost,path,svrmgmtport,svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      CloudServers.symbolize_keys(JSON.parse(response.body)["servers"])
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute.symbolize_keys(JSON.parse(response.body)["servers"])
     end
     alias :servers :list_servers
     
@@ -132,10 +132,10 @@ module CloudServers
     #   => [{:status=>"ACTIVE", :imageId=>10, :progress=>100, :metadata=>{}, :addresses=>{:public=>["x.x.x.x"], :private=>["x.x.x.x"]}, :name=>"demo-standingcloud-lts", :id=>168867, :flavorId=>1, :hostId=>"xxxxxx"}, 
     #       {:status=>"ACTIVE", :imageId=>8, :progress=>100, :metadata=>{}, :addresses=>{:public=>["x.x.x.x"], :private=>["x.x.x.x"]}, :name=>"demo-aicache1", :id=>187853, :flavorId=>3, :hostId=>"xxxxxx"}]
     def list_servers_detail(options = {})
-      path = CloudServers.paginate(options).empty? ? "#{svrmgmtpath}/servers/detail" : "#{svrmgmtpath}/servers/detail?#{CloudServers.paginate(options)}"
+      path = OpenStackCompute.paginate(options).empty? ? "#{svrmgmtpath}/servers/detail" : "#{svrmgmtpath}/servers/detail?#{OpenStackCompute.paginate(options)}"
       response = csreq("GET",svrmgmthost,path,svrmgmtport,svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      CloudServers.symbolize_keys(JSON.parse(response.body)["servers"])
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute.symbolize_keys(JSON.parse(response.body)["servers"])
     end
     alias :servers_detail :list_servers_detail
     
@@ -153,10 +153,10 @@ module CloudServers
     # For :personality, pass a hash of the form {'local_path' => 'server_path'}.  The file located at local_path will be base64-encoded
     # and placed at the location identified by server_path on the new server.
     #
-    # Returns a CloudServers::Server object.  The root password is available in the adminPass instance method.
+    # Returns a OpenStackCompute::Server object.  The root password is available in the adminPass instance method.
     #
     #   >> server = cs.create_server(:name => "New Server", :imageId => 2, :flavorId => 2, :metadata => {'Racker' => 'Fanatical'}, :personality => {'/Users/me/Pictures/wedding.jpg' => '/root/me.jpg'})
-    #   => #<CloudServers::Server:0x101229eb0 ...>
+    #   => #<OpenStackCompute::Server:0x101229eb0 ...>
     #   >> server.name
     #   => "NewServer"
     #   >> server.status
@@ -164,14 +164,14 @@ module CloudServers
     #   >> server.adminPass
     #   => "NewServerSHMGpvI"
     def create_server(options)
-      raise CloudServers::Exception::MissingArgument, "Server name, flavor ID, and image ID must be supplied" unless (options[:name] && options[:flavorId] && options[:imageId])
+      raise OpenStackCompute::Exception::MissingArgument, "Server name, flavor ID, and image ID must be supplied" unless (options[:name] && options[:flavorId] && options[:imageId])
       options[:personality] = get_personality(options[:personality])
       raise TooManyMetadataItems, "Metadata is limited to a total of #{MAX_PERSONALITY_METADATA_ITEMS} key/value pairs" if options[:metadata].is_a?(Hash) && options[:metadata].keys.size > MAX_PERSONALITY_METADATA_ITEMS
       data = JSON.generate(:server => options)
       response = csreq("POST",svrmgmthost,"#{svrmgmtpath}/servers",svrmgmtport,svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       server_info = JSON.parse(response.body)['server']
-      server = CloudServers::Server.new(self,server_info['id'])
+      server = OpenStackCompute::Server.new(self,server_info['id'])
       server.adminPass = server_info['adminPass']
       return server
     end
@@ -190,19 +190,19 @@ module CloudServers
     #       {:status=>"ACTIVE", :name=>"CentOS 5.3", :updated=>"2009-08-26T14:59:52-05:00", :id=>7}, 
     #       {:status=>"ACTIVE", :name=>"CentOS 5.4", :updated=>"2009-12-16T01:02:17-06:00", :id=>187811}]
     def list_images(options = {})
-      path = CloudServers.paginate(options).empty? ? "#{svrmgmtpath}/images/detail" : "#{svrmgmtpath}/images/detail?#{CloudServers.paginate(options)}"
+      path = OpenStackCompute.paginate(options).empty? ? "#{svrmgmtpath}/images/detail" : "#{svrmgmtpath}/images/detail?#{OpenStackCompute.paginate(options)}"
       response = csreq("GET",svrmgmthost,path,svrmgmtport,svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      CloudServers.symbolize_keys(JSON.parse(response.body)['images'])
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute.symbolize_keys(JSON.parse(response.body)['images'])
     end
     alias :images :list_images
     
-    # Returns a CloudServers::Image object for the image identified by the provided id.
+    # Returns a OpenStackCompute::Image object for the image identified by the provided id.
     #
     #   >> image = cs.get_image(8)
-    #   => #<CloudServers::Image:0x101659698 ...>
+    #   => #<OpenStackCompute::Image:0x101659698 ...>
     def get_image(id)
-      CloudServers::Image.new(self,id)
+      OpenStackCompute::Image.new(self,id)
     end
     alias :image :get_image
     
@@ -219,19 +219,19 @@ module CloudServers
     #       {:ram=>2048, :disk=>80, :name=>"2GB server", :id=>4}, 
     #       {:ram=>4096, :disk=>160, :name=>"4GB server", :id=>5}]       
     def list_flavors(options = {})
-      path = CloudServers.paginate(options).empty? ? "#{svrmgmtpath}/flavors/detail" : "#{svrmgmtpath}/flavors/detail?#{CloudServers.paginate(options)}"
+      path = OpenStackCompute.paginate(options).empty? ? "#{svrmgmtpath}/flavors/detail" : "#{svrmgmtpath}/flavors/detail?#{OpenStackCompute.paginate(options)}"
       response = csreq("GET",svrmgmthost,path,svrmgmtport,svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      CloudServers.symbolize_keys(JSON.parse(response.body)['flavors'])
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute.symbolize_keys(JSON.parse(response.body)['flavors'])
     end
     alias :flavors :list_flavors
     
-    # Returns a CloudServers::Flavor object for the flavor identified by the provided ID.
+    # Returns a OpenStackCompute::Flavor object for the flavor identified by the provided ID.
     #
     #   >> flavor = cs.flavor(1)
-    #   => #<CloudServers::Flavor:0x10156dcc0 @name="256 server", @disk=10, @id=1, @ram=256>
+    #   => #<OpenStackCompute::Flavor:0x10156dcc0 @name="256 server", @disk=10, @id=1, @ram=256>
     def get_flavor(id)
-      CloudServers::Flavor.new(self,id)
+      OpenStackCompute::Flavor.new(self,id)
     end
     alias :flavor :get_flavor
     
@@ -242,19 +242,19 @@ module CloudServers
     #   >> cs.list_shared_ip_groups
     #   => [{:name=>"New Group", :id=>127}]
     def list_shared_ip_groups(options = {})
-      path = CloudServers.paginate(options).empty? ? "#{svrmgmtpath}/shared_ip_groups/detail" : "#{svrmgmtpath}/shared_ip_groups/detail?#{CloudServers.paginate(options)}"
+      path = OpenStackCompute.paginate(options).empty? ? "#{svrmgmtpath}/shared_ip_groups/detail" : "#{svrmgmtpath}/shared_ip_groups/detail?#{OpenStackCompute.paginate(options)}"
       response = csreq("GET",svrmgmthost,path,svrmgmtport,svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      CloudServers.symbolize_keys(JSON.parse(response.body)['sharedIpGroups'])
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute.symbolize_keys(JSON.parse(response.body)['sharedIpGroups'])
     end
     alias :shared_ip_groups :list_shared_ip_groups
     
-    # Returns a CloudServers::SharedIPGroup object for the IP group identified by the provided ID.
+    # Returns a OpenStackCompute::SharedIPGroup object for the IP group identified by the provided ID.
     #
     #   >> sig = cs.get_shared_ip_group(127)
-    #   => #<CloudServers::SharedIPGroup:0x10153ca30  ...>
+    #   => #<OpenStackCompute::SharedIPGroup:0x10153ca30  ...>
     def get_shared_ip_group(id)
-      CloudServers::SharedIPGroup.new(self,id)
+      OpenStackCompute::SharedIPGroup.new(self,id)
     end
     alias :shared_ip_group :get_shared_ip_group
     
@@ -263,7 +263,7 @@ module CloudServers
     # Valid hash keys are :name (required) and :server (optional), which indicates the one server to place into this group by default.
     #
     #   >> sig = cs.create_shared_ip_group(:name => "Production Web", :server => 110917) 
-    #   => #<CloudServers::SharedIPGroup:0x101501d18 ...>
+    #   => #<OpenStackCompute::SharedIPGroup:0x101501d18 ...>
     #   >> sig.name
     #   => "Production Web"
     #   >> sig.servers
@@ -271,9 +271,9 @@ module CloudServers
     def create_shared_ip_group(options)
       data = JSON.generate(:sharedIpGroup => options)
       response = csreq("POST",svrmgmthost,"#{svrmgmtpath}/shared_ip_groups",svrmgmtport,svrmgmtscheme,{'content-type' => 'application/json'},data)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
       ip_group = JSON.parse(response.body)['sharedIpGroup']
-      CloudServers::SharedIPGroup.new(self,ip_group['id'])
+      OpenStackCompute::SharedIPGroup.new(self,ip_group['id'])
     end
     
     # Returns the current state of the programatic API limits.  Each account has certain limits on the number of resources
@@ -301,8 +301,8 @@ module CloudServers
     # Use this information as you're building your applications to put in relevant pauses if you approach your API limitations.
     def limits
       response = csreq("GET",svrmgmthost,"#{svrmgmtpath}/limits",svrmgmtport,svrmgmtscheme)
-      CloudServers::Exception.raise_exception(response) unless response.code.match(/^20.$/)
-      CloudServers.symbolize_keys(JSON.parse(response.body)['limits'])
+      OpenStackCompute::Exception.raise_exception(response) unless response.code.match(/^20.$/)
+      OpenStackCompute.symbolize_keys(JSON.parse(response.body)['limits'])
     end
     
     private
@@ -313,7 +313,7 @@ module CloudServers
       default_headers["X-Auth-Token"] = @authtoken if (authok? && @account.nil?)
       default_headers["X-Storage-Token"] = @authtoken if (authok? && !@account.nil?)
       default_headers["Connection"] = "Keep-Alive"
-      default_headers["User-Agent"] = "CloudServers Ruby API #{VERSION}"
+      default_headers["User-Agent"] = "OpenStackCompute Ruby API #{VERSION}"
       default_headers["Accept"] = "application/json"
       default_headers.merge(headers)
     end
@@ -341,9 +341,9 @@ module CloudServers
       data = []
       itemcount = 0
       options.each do |localpath,svrpath|
-        raise CloudServers::Exception::TooManyPersonalityItems, "Personality files are limited to a total of #{MAX_PERSONALITY_ITEMS} items" if itemcount >= MAX_PERSONALITY_ITEMS
-        raise CloudServers::Exception::PersonalityFilePathTooLong, "Server-side path of #{svrpath} exceeds the maximum length of #{MAX_SERVER_PATH_LENGTH} characters" if svrpath.size > MAX_SERVER_PATH_LENGTH
-        raise CloudServers::Exception::PersonalityFileTooLarge, "Local file #{localpath} exceeds the maximum size of #{MAX_PERSONALITY_FILE_SIZE} bytes" if File.size(localpath) > MAX_PERSONALITY_FILE_SIZE
+        raise OpenStackCompute::Exception::TooManyPersonalityItems, "Personality files are limited to a total of #{MAX_PERSONALITY_ITEMS} items" if itemcount >= MAX_PERSONALITY_ITEMS
+        raise OpenStackCompute::Exception::PersonalityFilePathTooLong, "Server-side path of #{svrpath} exceeds the maximum length of #{MAX_SERVER_PATH_LENGTH} characters" if svrpath.size > MAX_SERVER_PATH_LENGTH
+        raise OpenStackCompute::Exception::PersonalityFileTooLarge, "Local file #{localpath} exceeds the maximum size of #{MAX_PERSONALITY_FILE_SIZE} bytes" if File.size(localpath) > MAX_PERSONALITY_FILE_SIZE
         b64 = Base64.encode64(IO.read(localpath))
         data.push({:path => svrpath, :contents => b64})
         itemcount += 1
