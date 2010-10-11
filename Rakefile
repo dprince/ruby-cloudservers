@@ -5,11 +5,11 @@ require 'rake/testtask'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "cloudservers"
-    gemspec.summary = "Rackspace Cloud Servers Ruby API"
-    gemspec.description = "A Ruby API to version 1.0 of the Rackspace Cloud Servers product."
-    gemspec.email = "minter@lunenburg.org"
-    gemspec.homepage = "http://github.com/rackspace/cloudservers"
+    gemspec.name = "openstackcompute"
+    gemspec.summary = "OpenStack Compute Ruby API"
+    gemspec.description = "API Binding for OpenStack Compute"
+    gemspec.email = "dan.prince@rackspace.com"
+    gemspec.homepage = "https://launchpad.net/ruby-openstack-compute"
     gemspec.authors = ["Dan Prince"]
     gemspec.add_dependency 'json'
   end
