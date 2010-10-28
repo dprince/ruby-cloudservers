@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + '/test_helper'
+$:.unshift File.dirname(__FILE__)
+require 'test_helper'
 
 class CloudServersServersTest < Test::Unit::TestCase
 
@@ -70,15 +71,15 @@ json_response = %{{
   def test_get_server
 
     server=get_test_server
-    assert "sample-server", server.name
-    assert "2", server.imageId
-    assert "1", server.flavorId
-    assert "e4d909c290d0fb1ca068ffaddf22cbd0", server.hostId
-    assert "BUILD", server.status
-    assert "60", server.progress
-    assert "67.23.10.132", server.addresses[:public][0]
-    assert "67.23.10.131", server.addresses[:public][1]
-    assert "10.176.42.16", server.addresses[:private][1]
+    assert_equal "sample-server", server.name
+    assert_equal 2, server.imageId
+    assert_equal 1, server.flavorId
+    assert_equal "e4d909c290d0fb1ca068ffaddf22cbd0", server.hostId
+    assert_equal "BUILD", server.status
+    assert_equal 60, server.progress
+    assert_equal "67.23.10.132", server.addresses[:public][0]
+    assert_equal "67.23.10.131", server.addresses[:public][1]
+    assert_equal "10.176.42.16", server.addresses[:private][0]
 
   end
 
