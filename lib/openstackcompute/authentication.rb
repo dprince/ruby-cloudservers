@@ -11,8 +11,8 @@ module OpenStackCompute
       path = '/v1.0'
       hdrhash = { "X-Auth-User" => connection.authuser, "X-Auth-Key" => connection.authkey }
       begin
-        server = Net::HTTP::Proxy(connection.proxy_host, connection.proxy_port).new(connection.api_host, connection.api_port)
-        if connection.api_scheme == "https"
+        server = Net::HTTP::Proxy(connection.proxy_host, connection.proxy_port).new(connection.auth_host, connection.auth_port)
+        if connection.auth_scheme == "https"
           server.use_ssl = true
           server.verify_mode = OpenSSL::SSL::VERIFY_NONE
         end
