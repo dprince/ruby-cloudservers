@@ -9,6 +9,9 @@ module CloudServers
     attr_accessor :svrmgmtpath
     attr_accessor :svrmgmtport
     attr_accessor :svrmgmtscheme
+    attr_reader   :auth_host
+    attr_reader   :auth_port
+    attr_reader   :auth_scheme
     attr_reader   :proxy_host
     attr_reader   :proxy_port
     
@@ -26,6 +29,7 @@ module CloudServers
     #
     #   :username - Your Rackspace Cloud username *required*
     #   :api_key - Your Rackspace Cloud API key *required*
+    #   :auth_url - Configurable auth_url endpoint.
     #   :retry_auth - Whether to retry if your auth token expires (defaults to true)
     #   :proxy_host - If you need to connect through a proxy, supply the hostname here
     #   :proxy_port - If you need to connect through a proxy, supply the port here
@@ -34,6 +38,19 @@ module CloudServers
     def initialize(options = {:retry_auth => true}) 
       @authuser = options[:username] || (raise Exception::Authentication, "Must supply a :username")
       @authkey = options[:api_key] || (raise Exception::Authentication, "Must supply an :api_key")
+      @auth_url = options[:auth_url] || @auth_url = CloudServers::Authentication::AUTH_USA
+
+      auth_uri=nil
+      begin
+        auth_uri=URI.parse(@auth_url)
+      rescue Exception => e
+        raise Exception::InvalidArgument, "Invalid :auth_url parameter: #{e.message}"
+      end
+      raise Exception::InvalidArgument, "Invalid :auth_url parameter." if auth_uri.nil? or auth_uri.host.nil?
+      @auth_host = auth_uri.host
+      @auth_port = auth_uri.port
+      @auth_scheme = auth_uri.scheme
+
       @retry_auth = options[:retry_auth]
       @proxy_host = options[:proxy_host]
       @proxy_port = options[:proxy_port]

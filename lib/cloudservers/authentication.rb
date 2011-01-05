@@ -1,5 +1,8 @@
 module CloudServers
   class Authentication
+
+	AUTH_USA="https://auth.api.rackspacecloud.com"
+	AUTH_UK="https://lon.auth.api.rackspacecloud.com"
     
     # Performs an authentication to the Rackspace Cloud authorization servers.  Opens a new HTTP connection to the API server,
     # sends the credentials, and looks for a successful authentication.  If it succeeds, it sets the svrmgmthost,
@@ -11,9 +14,11 @@ module CloudServers
       path = '/v1.0'
       hdrhash = { "X-Auth-User" => connection.authuser, "X-Auth-Key" => connection.authkey }
       begin
-        server = Net::HTTP::Proxy(connection.proxy_host, connection.proxy_port).new('auth.api.rackspacecloud.com',443)
-        server.use_ssl = true
-        server.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        server = Net::HTTP::Proxy(connection.proxy_host, connection.proxy_port).new(connection.auth_host,connection.auth_port)
+        if connection.auth_scheme == "https"
+          server.use_ssl = true
+          server.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
         server.start
       rescue
         raise CloudServers::Exception::Connection, "Unable to connect to #{server}"
