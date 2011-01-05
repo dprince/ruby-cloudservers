@@ -30,7 +30,7 @@ See the class definitions for documentation on specific methods and operations.
   cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY)
 
   # Log into the Cloud Servers UK
-  cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY, :auth_url => CloudServers::Authentication::AUTH_UK)
+  cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY, :auth_url => CloudServers::AUTH_UK)
 
   # Get a listing of all current servers
   >> cs.servers

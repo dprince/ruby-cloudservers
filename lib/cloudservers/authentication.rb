@@ -1,9 +1,6 @@
 module CloudServers
   class Authentication
 
-	AUTH_USA="https://auth.api.rackspacecloud.com"
-	AUTH_UK="https://lon.auth.api.rackspacecloud.com"
-    
     # Performs an authentication to the Rackspace Cloud authorization servers.  Opens a new HTTP connection to the API server,
     # sends the credentials, and looks for a successful authentication.  If it succeeds, it sets the svrmgmthost,
     # svrmgtpath, svrmgmtport, svrmgmtscheme, authtoken, and authok variables on the connection.  If it fails, it raises

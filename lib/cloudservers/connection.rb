@@ -38,7 +38,7 @@ module CloudServers
     def initialize(options = {:retry_auth => true}) 
       @authuser = options[:username] || (raise Exception::Authentication, "Must supply a :username")
       @authkey = options[:api_key] || (raise Exception::Authentication, "Must supply an :api_key")
-      @auth_url = options[:auth_url] || @auth_url = CloudServers::Authentication::AUTH_USA
+      @auth_url = options[:auth_url] || @auth_url = CloudServers::AUTH_USA
 
       auth_uri=nil
       begin

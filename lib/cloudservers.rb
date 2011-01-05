@@ -17,6 +17,9 @@
 
 module CloudServers
 
+  AUTH_USA = "https://auth.api.rackspacecloud.com"
+  AUTH_UK = "https://lon.auth.api.rackspacecloud.com"
+
   VERSION = IO.read(File.dirname(__FILE__) + '/../VERSION')
   require 'net/http'
   require 'net/https'
