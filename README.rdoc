@@ -26,8 +26,11 @@ See the class definitions for documentation on specific methods and operations.
   require 'rubygems'
   require 'cloudservers'
 
-  # Log into the Cloud Servers system
+  # Log into the Cloud Servers (Defaults to US)
   cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY)	
+
+  # Log into the Cloud Servers UK
+  cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY, :zone => :uk)	
 
   # Get a listing of all current servers
   >> cs.servers
@@ -40,7 +43,6 @@ See the class definitions for documentation on specific methods and operations.
 
   # or...
   server_manager.find(110917)
-  
 
   # See what type of server this is
   >> server.flavor.name

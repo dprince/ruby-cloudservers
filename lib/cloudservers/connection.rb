@@ -11,6 +11,7 @@ module CloudServers
     attr_accessor :svrmgmtscheme
     attr_reader   :proxy_host
     attr_reader   :proxy_port
+    attr_reader   :zone
     
     # Creates a new CloudServers::Connection object.  Uses CloudServers::Authentication to perform the login for the connection.
     #
@@ -29,6 +30,7 @@ module CloudServers
     #   :retry_auth - Whether to retry if your auth token expires (defaults to true)
     #   :proxy_host - If you need to connect through a proxy, supply the hostname here
     #   :proxy_port - If you need to connect through a proxy, supply the port here
+    #   :zone - The Rackspace Cloud Zone. Currently supports :us and :uk. Defaults to :us.
     #
     #   cf = CloudServers::Connection.new(:username => 'YOUR_USERNAME', :api_key => 'YOUR_API_KEY')
     def initialize(options = {:retry_auth => true}) 
@@ -37,6 +39,8 @@ module CloudServers
       @retry_auth = options[:retry_auth]
       @proxy_host = options[:proxy_host]
       @proxy_port = options[:proxy_port]
+      @zone = options[:zone] || @zone = :us
+      raise Exception::Authentication, "Please specify a valid :zone" if not CloudServers::Authentication::AUTH_ZONES.has_key?(@zone.to_s)
       @authok = false
       @http = {}
       CloudServers::Authentication.new(self)

@@ -14,5 +14,11 @@ class CloudServersConnectionTest < Test::Unit::TestCase
       conn = CloudServers::Connection.new(:username => "test_account")
     end
   end
+
+  def test_bad_zone
+    assert_raises(CloudServers::Exception::Authentication) do
+      conn = CloudServers::Connection.new(:zone => :asdf)
+    end
+  end
     
 end
