@@ -26,8 +26,11 @@ See the class definitions for documentation on specific methods and operations.
   require 'rubygems'
   require 'cloudservers'
 
-  # Log into the Cloud Servers system
-  cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY)	
+  # Log into the Cloud Servers
+  cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY)
+
+  # Log into the Cloud Servers UK
+  cs = CloudServers::Connection.new(:username => USERNAME, :api_key => API_KEY, :auth_url => CloudServers::Authentication::AUTH_UK)
 
   # Get a listing of all current servers
   >> cs.servers
